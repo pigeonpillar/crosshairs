@@ -26,9 +26,8 @@ const useAirtable = (baseId, tableName, view) => {
 
           let out = [];
 
-          base('Open Source').select({
-            maxRecords: 1000,
-            view: 'Grid view'
+          base(tableName).select({
+            view: view
           }).eachPage((records, fetchNextPage) => {
             out = out.concat(records);
             fetchNextPage();

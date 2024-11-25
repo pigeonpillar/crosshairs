@@ -10,13 +10,13 @@ export default function Home() {
     records: opensourceData,
     loading: opensourceLoading,
     error: opensourceError
-  } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Open Source');
+  } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Open Source', 'Grid view');
 
   const {
     records: fieldresearchData,
     loading: fieldresearchLoading,
     error: fieldresearchError
-  } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Field Research');
+  } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Field Research', 'Tracking');
 
   return (
     <div>
