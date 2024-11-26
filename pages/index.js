@@ -26,7 +26,7 @@ export default function Home() {
       {opensourceLoading && <p style={{ zIndex: 1000, position: 'absolute', top: 0, left: 0 }}>Loading open source data...</p>}
       {fieldresearchLoading && <p style={{ zIndex: 1000, position: 'absolute', top: '15px', left: 0 }}>Loading field research data...</p>}
 
-      {false && !opensourceLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
+      {/* {false && !opensourceLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
         <b>Open Source Data</b>
         {opensourceData.map(record => <div key={record.id} style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields.description}</div>)}
       </div>}
@@ -34,11 +34,11 @@ export default function Home() {
       {false && !fieldresearchLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
         <b>Field Research Data</b>
         {fieldresearchData.map(record => <div key={record.id} style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields['Description (AR)']}</div>)}
-      </div>}
+      </div>} */}
 
       <Map
         mapRef={mapRef}
-        data={{ opensourceData }}
+        data={opensourceLoading ? {} : { opensourceData }}
       />
 
     </div>

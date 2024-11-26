@@ -1,6 +1,9 @@
 import { useEffect, useState, useRef } from "react";
 import mapboxgl from "!mapbox-gl";
 
+import { DataInfo } from "./DataInfo";
+import { arraysAreEqual } from "../utils/utils";
+
 
 export const Map = ({
   mapRef,
@@ -11,6 +14,8 @@ export const Map = ({
   mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
   const mapContainer = useRef(null);
   const map = mapRef.current;
+
+  const [hovered, setHovered] = useState([]);
 
   useEffect(() => {
     if (mapRef.current) return;
@@ -44,7 +49,11 @@ export const Map = ({
           properties: d.fields,
         })),
       };
-      const source = mapRef.current?.getSource(key);
+      let source;
+      try {
+        source = mapRef.current?.getSource(key);
+      } catch {
+      }
       if (source) {
         source.setData(geojson);
       } else {
@@ -65,12 +74,28 @@ export const Map = ({
         },
       });
     });
-  }, [data]);
 
-  return <div
-    style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}
-    ref={mapContainer}
-    className="map-container"
-  />;
+    mapRef.current.on('mousemove', (e) => {
+      const features = mapRef.current.queryRenderedFeatures(e.point, {
+        layers: Object.keys(data)
+      });
+      mapRef.current.getCanvas().style.cursor = features.length ? 'pointer' : '';
+      if (!arraysAreEqual(hovered, features)) {
+        setHovered(features);
+      }
+    });
+
+  }, [data, hovered]);
+
+  return [
+    <DataInfo
+      features={hovered}
+    />,
+    <div
+      style={{ position: 'absolute', top: 0, left: 0, bottom: 0, right: 0 }}
+      ref={mapContainer}
+      className="map-container"
+    />
+  ];
 
 };
