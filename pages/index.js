@@ -1,10 +1,13 @@
-import { setState, useMemo } from 'react';
+import { setState, useMemo, useRef } from 'react';
 import Head from 'next/head';
 import styles from '../styles/Home.module.css';
 import * as Airtable from 'airtable';
 import useAirtable from '../components/useAirtable';
+import { Map } from '../components/Map';
 
 export default function Home() {
+
+  const mapRef = useRef(null);
 
   const {
     records: opensourceData,
@@ -20,18 +23,23 @@ export default function Home() {
 
   return (
     <div>
-      {opensourceLoading && <p>Loading open source data...</p>}
-      {fieldresearchLoading && <p>Loading field research data...</p>}
+      {opensourceLoading && <p style={{ zIndex: 1000, position: 'absolute', top: 0, left: 0 }}>Loading open source data...</p>}
+      {fieldresearchLoading && <p style={{ zIndex: 1000, position: 'absolute', top: '15px', left: 0 }}>Loading field research data...</p>}
 
-      {!opensourceLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
+      {false && !opensourceLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
         <b>Open Source Data</b>
-        {opensourceData.map(record => <div style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields.description}</div>)}
+        {opensourceData.map(record => <div key={record.id} style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields.description}</div>)}
       </div>}
 
-      {!fieldresearchLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
+      {false && !fieldresearchLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
         <b>Field Research Data</b>
-        {fieldresearchData.map(record => <div style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields['Description (AR)']}</div>)}
+        {fieldresearchData.map(record => <div key={record.id} style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields['Description (AR)']}</div>)}
       </div>}
+
+      <Map
+        mapRef={mapRef}
+        data={{ opensourceData }}
+      />
 
     </div>
   );
