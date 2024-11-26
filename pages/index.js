@@ -22,6 +22,17 @@ export default function Home() {
     <div>
       {opensourceLoading && <p>Loading open source data...</p>}
       {fieldresearchLoading && <p>Loading field research data...</p>}
+
+      {!opensourceLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
+        <b>Open Source Data</b>
+        {opensourceData.map(record => <div style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields.description}</div>)}
+      </div>}
+
+      {!fieldresearchLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
+        <b>Field Research Data</b>
+        {fieldresearchData.map(record => <div style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields['Description (AR)']}</div>)}
+      </div>}
+
     </div>
   );
 }
