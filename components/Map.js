@@ -38,9 +38,10 @@ export const Map = ({
   useEffect(() => {
     if (!mapRef.current || !init) return;
     Object.entries(data).forEach(([key, dataset]) => {
+      if (dataset.loading || !dataset.spatial) return;
       const geojson = {
         type: "FeatureCollection",
-        features: dataset.map((d) => ({
+        features: dataset.data.map((d) => ({
           type: "Feature",
           geometry: {
             type: "Point",
@@ -85,7 +86,7 @@ export const Map = ({
       }
     });
 
-  }, [data, hovered]);
+  }, [JSON.stringify(data), hovered, init]);
 
   return [
     <DataInfo
