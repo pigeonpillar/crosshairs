@@ -38,10 +38,9 @@ export const Map = ({
   useEffect(() => {
     if (!mapRef.current || !init) return;
     Object.entries(data).forEach(([key, dataset]) => {
-      if (dataset.loading || !dataset.spatial) return;
       const geojson = {
         type: "FeatureCollection",
-        features: dataset.data.map((d) => ({
+        features: dataset.map((d) => ({
           type: "Feature",
           geometry: {
             type: "Point",
