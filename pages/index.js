@@ -1,37 +1,75 @@
-import { setState, useMemo } from 'react';
+import { setState, useMemo, useRef } from 'react';
 import Head from 'next/head';
-import styles from '../styles/Home.module.css';
 import * as Airtable from 'airtable';
+
 import useAirtable from '../components/useAirtable';
+import { fetchAirtable } from '../utils/fetch';
+import { Map } from '../components/Map';
+import styles from '../styles/Home.module.css';
 
-export default function Home() {
+export async function getStaticProps() {
 
-  const {
-    records: opensourceData,
-    loading: opensourceLoading,
-    error: opensourceError
-  } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Open Source', 'Grid view');
+  const [opensourceData, fieldresearchData] = await Promise.all([
+    fetchAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Open Source'),
+    fetchAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Field Research'),
+  ]);
 
-  const {
-    records: fieldresearchData,
-    loading: fieldresearchLoading,
-    error: fieldresearchError
-  } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Field Research', 'Tracking');
+  return {
+    props: {
+      opensourceData,
+      fieldresearchData,
+    },
+    revalidate: 10,
+  };
+}
+
+
+export default function Home({
+  opensourceData,
+  fieldresearchData
+}) {
+
+  const mapRef = useRef(null);
+
+  console.log(opensourceData);
+
+  /*
+
+    // alternative method for fetching airtable data
+  
+    const {
+      records: opensourceData,
+      loading: opensourceLoading,
+      error: opensourceError
+    } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Open Source', 'Grid view');
+  
+    const {
+      records: fieldresearchData,
+      loading: fieldresearchLoading,
+      error: fieldresearchError
+    } = useAirtable(process.env.NEXT_PUBLIC_FIELD_RESEARCH_BASE_ID, 'Field Research', 'Tracking');
+  
+    const spatialData = {
+      opensourceData:
+      {
+        loading: opensourceLoading,
+        spatial: true,
+        temporal: true,
+        data: opensourceData,
+      },
+    }
+  
+    */
 
   return (
     <div>
-      {opensourceLoading && <p>Loading open source data...</p>}
-      {fieldresearchLoading && <p>Loading field research data...</p>}
+      {!opensourceData && <p style={{ zIndex: 1000, position: 'absolute', top: 0, left: 0 }}>Loading open source data...</p>}
+      {!fieldresearchData && <p style={{ zIndex: 1000, position: 'absolute', top: '15px', left: 0 }}>Loading field research data...</p>}
 
-      {!opensourceLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
-        <b>Open Source Data</b>
-        {opensourceData.map(record => <div style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields.description}</div>)}
-      </div>}
-
-      {!fieldresearchLoading && <div style={{ width: '250px', display: 'inline-block', verticalAlign: 'top' }}>
-        <b>Field Research Data</b>
-        {fieldresearchData.map(record => <div style={{ fontSize: '10px', width: '200px', margin: '10px' }}>{record.fields['Description (AR)']}</div>)}
-      </div>}
+      <Map
+        mapRef={mapRef}
+        data={{ opensourceData }}
+      />
 
     </div>
   );

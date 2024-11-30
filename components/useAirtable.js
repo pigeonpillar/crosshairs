@@ -34,16 +34,14 @@ const useAirtable = (baseId, tableName, view) => {
           }, err => {
             if (err) {
               console.error('Error:', err);
-            }
-            if (!loading) {
+            } else {
               localStorage.setItem(`${baseId}-${tableName}-records`, JSON.stringify(out));
+              setRecords(out);
+              setLoading(false);
             }
-            setRecords(out);
-            setLoading(false);
           });
         } catch (err) {
           setError(err);
-          setLoading(false);
         }
       };
 
