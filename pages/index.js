@@ -35,7 +35,7 @@ export default function Home() {
         textAlign: 'center',
         lineHeight: 1.2,
       }}>
-        Crosshairs
+        crosshairs
       </span>
     </div>
   );
