@@ -8,13 +8,19 @@ export default function Home() {
         0%, 100% { opacity: 1; }
         50% { opacity: 0; }
       }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
     `;
     document.head.appendChild(style);
   }, []);
 
   return (
     <div style={{
-      height: '100vh',
+      minHeight: '100svh', // viewport height that accounts for mobile browser UI
       margin: 0,
       padding: 0,
       display: 'flex',
@@ -27,6 +33,7 @@ export default function Home() {
         fontWeight: 'bold',
         fontSize: 'clamp(2rem, 8vw, 5rem)',
         textAlign: 'center',
+        lineHeight: 1.2,
       }}>
         Crosshairs
       </span>
