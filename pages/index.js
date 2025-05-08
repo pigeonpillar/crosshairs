@@ -42,6 +42,7 @@ export default function Home() {
         fontWeight: 'bold',
         fontSize: 'clamp(2rem, 8vw, 5rem)',
         lineHeight: 1.2,
+        color: '#333333', // Dark gray
       }}>
         crosshairs
       </span>
@@ -52,9 +53,10 @@ export default function Home() {
         transform: showEmail ? 'translateY(0)' : 'translateY(-20px)',
         transition: 'opacity 0.6s ease, transform 0.6s ease',
         fontSize: 'clamp(1rem, 4vw, 1.5rem)',
+        color: '#D3D3D3', // Light gray for email text
       }}>
         Email: <a href="mailto:info@crosshairs.uk" style={{
-          color: '#000',
+          color: '#D3D3D3',
           textDecoration: 'underline',
         }}>
           info@crosshairs.uk
