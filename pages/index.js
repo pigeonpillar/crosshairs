@@ -33,8 +33,8 @@ export default function Home() {
               fontSize: '2.5rem',
               color: '#FFFFFF',
               backgroundColor: '#00BFAE',
-              padding: '0.25rem 0.5rem',      // adjust highlight thickness
-              fontFamily: 'Utopia, serif',   // use Utopia for the title
+              padding: '0.25rem 0.5rem',      // highlight thickness
+              fontFamily: 'Utopia, serif',   // use Utopia if available
             }}
           >
             crosshairs
@@ -54,19 +54,13 @@ export default function Home() {
 
       {/* FEATURED STORIES / CARDS */}
       <section>
-        {/* Wrap heading + grid in a container with 50px left/right padding */}
-        <div style={{ padding: '0 50px' }}>
+        {/* Use className instead of inline style for padding */}
+        <div className="cards-container">
           <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#D3D3D3' }}>
             Featured Stories
           </h2>
 
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1.5rem',
-            }}
-          >
+          <div className="cards-grid">
             {/* Card #1 */}
             <VideoCard
               videoId="1065734388"
@@ -97,26 +91,46 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Styled-JSX for the navigation “buttons” under the title */}
+      {/* Styled-JSX (including responsive media query) */}
       <style jsx>{`
+        /* Container that wraps the “Featured Stories” heading + grid */
+        .cards-container {
+          padding: 0 50px; /* desktop: 50px on left/right */
+        }
+
+        /* Grid for video cards */
+        .cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1.5rem;
+        }
+
+        /* Navigation buttons under the title */
         .nav-buttons {
           display: flex;
           justify-content: center;
           gap: 2rem;
-          margin-top: 1rem; /* space above the buttons */
+          margin-top: 1rem;
         }
         .nav-button {
-          display: inline-block;            
+          display: inline-block;
           font-size: 1.25rem;
           color: #555555;
-          text-decoration: none;             
-          padding-bottom: 0.25rem;           
+          text-decoration: none;
+          padding-bottom: 0.25rem;
           cursor: pointer;
-          font-family: Utopia, serif;        /* use Utopia for Analysis & About */
+          font-family: Utopia, serif;
         }
         .nav-button:hover,
         .nav-button:active {
-          border-bottom: 2px solid #00BFAE;  /* teal underline on hover/click */
+          border-bottom: 2px solid #00BFAE;
+        }
+
+        /* ===== Responsive adjustments for phones ===== */
+        @media (max-width: 600px) {
+          .cards-container {
+            padding: 0 10px; /* drop from 50px to 10px on small screens */
+          }
         }
       `}</style>
     </>
