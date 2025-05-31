@@ -1,62 +1,30 @@
 // pages/index.js
-import React from 'react';
-import * as FlashTitleModule from '../components/FlashTitle';
-import * as EmailRevealModule from '../components/EmailReveal';
 
-const FlashTitle = FlashTitleModule.default || FlashTitleModule;
-const EmailReveal = EmailRevealModule.default || EmailRevealModule;
+import { useEffect } from 'react';
 
 export default function Home() {
-  return (
-<<<<<<< HEAD
-    <div
-      style={{
-        minHeight: '100svh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#fff',
-        textAlign: 'center',
-      }}
-    >
-      <FlashTitle text="crosshairs" />
-      <EmailReveal email="info@crosshairs.uk" delay={3000} />
-=======
-    <div style={{
-      minHeight: '100svh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#fff',
-      fontFamily: 'sans-serif',
-      textAlign: 'center',
-    }}>
-      <span style={{
-        animation: 'flash 1s infinite',
-        fontWeight: 'bold',
-        fontSize: 'clamp(2rem, 8vw, 5rem)',
-        lineHeight: 1.2,
-      }}>
-        crosshairs
-      </span>
+  // Run once on client side to inject the dot
+  useEffect(() => {
+    const dot = document.createElement('div');
+    Object.assign(dot.style, {
+      position: 'fixed',
+      top: '50%',
+      left: '50%',
+      width: '8px',
+      height: '8px',
+      backgroundColor: 'black',
+      borderRadius: '50%',
+      transform: 'translate(-50%, -50%)',
+      pointerEvents: 'none',
+      zIndex: '9999',
+    });
+    document.body.appendChild(dot);
+  }, []);
 
-      <div style={{
-        marginTop: '1.5rem',
-        opacity: showEmail ? 1 : 0,
-        transform: showEmail ? 'translateY(0)' : 'translateY(-20px)',
-        transition: 'opacity 0.6s ease, transform 0.6s ease',
-        fontSize: 'clamp(1rem, 4vw, 1.5rem)',
-      }}>
-        Email: <a href="mailto:info@crosshairs.uk" style={{
-          color: '#000',
-          textDecoration: 'underline',
-        }}>
-          info@crosshairs.uk
-        </a>
-      </div>
->>>>>>> parent of 1c1a00ac (add)
+  return (
+    <div>
+      {/* Your page content goes here */}
+      <h1>Welcome to my Next.js page</h1>
     </div>
   );
 }
