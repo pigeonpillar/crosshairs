@@ -68,7 +68,7 @@ export default function About() {
 
         <p>
           If you have questions, feedback, or would like to collaborate on a project, feel free to{' '}
-          <a href="/contact" style={{ color: '#00BFAE', textDecoration: 'underline' }}>
+          <a href="mailto:info@crosshairs.uk" style={{ color: '#00BFAE', textDecoration: 'underline' }}>
             get in touch
           </a>. Thank you for visiting <strong>crosshairs</strong>—I hope these investigations shed light on the realities that too
           often remain hidden.
@@ -80,11 +80,11 @@ export default function About() {
             <a
               style={{
                 display: 'inline-block',
-                padding: '0.2rem 0.5rem',
+                padding: '0.5rem 1rem',
                 backgroundColor: '#00BFAE',
                 color: '#ffffff',
                 textDecoration: 'none',
-                borderRadius: '0px',
+                borderRadius: '4px',
               }}
             >
               ← Back to Home
