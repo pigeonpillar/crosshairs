@@ -1,0 +1,64 @@
+/* styles/fonts.css */
+
+@font-face {
+  font-family: 'Utopia';
+  src: 
+    url("/fonts/Utopia Semibold Font.woff2") format("woff2"),
+    url("/fonts/Utopia Semibold Font.woff")  format("woff");
+  font-weight: 600; /* semibold */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Utopia';
+  src: 
+    url("/fonts/Utopia Regular Font.woff2") format("woff2"),
+    url("/fonts/Utopia Regular Font.woff")  format("woff");
+  font-weight: 400; /* regular */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Utopia';
+  src: 
+    url("/fonts/Utopia Bold Font.woff2") format("woff2"),
+    url("/fonts/Utopia Bold Font.woff")  format("woff");
+  font-weight: 700; /* bold */
+  font-style: normal;
+  font-display: swap;
+}
+
+/* If you have other weights like Black, Subhead, Caption, etc., 
+   repeat the same pattern with correct font-weight and exact filename: */
+
+@font-face {
+  font-family: 'Utopia';
+  src:
+    url("/fonts/Utopia Black Headline Font.woff2") format("woff2"),
+    url("/fonts/Utopia Black Headline Font.woff")  format("woff");
+  font-weight: 900; /* black */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Utopia';
+  src:
+    url("/fonts/Utopia Font Subh.woff2") format("woff2"),
+    url("/fonts/Utopia Font Subh.woff")  format("woff");
+  font-weight: 500; /* subhead (for example) */
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Utopia';
+  src:
+    url("/fonts/Utopia Font Capt.woff2") format("woff2"),
+    url("/fonts/Utopia Font Capt.woff")  format("woff");
+  font-weight: 300; /* caption (for example) */
+  font-style: normal;
+  font-display: swap;
+}

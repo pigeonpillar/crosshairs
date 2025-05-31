@@ -1,18 +1,19 @@
 /* styles/global.css */
 
-/* 1) Flash keyframes */
+/* 1) Flash keyframes (optional – only if you need a flashing animation) */
 @keyframes flash {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0; }
 }
 
-/* 2) Full‐viewport reset & font stack */
+/* 2) Full-viewport reset & font stack */
 html,
 body {
   margin: 0;
   padding: 0;
   width: 100vw;
   height: 100vh;
+  /* If you need scrolling on mobile, remove 'overflow: hidden' here */
   overflow: hidden;
   font-family:
     Inter,
