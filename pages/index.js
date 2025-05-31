@@ -33,7 +33,8 @@ export default function Home() {
               fontSize: '2.5rem',
               color: '#FFFFFF',
               backgroundColor: '#00BFAE',
-              padding: '0.25rem 0.5rem', // adjust to make the highlight thinner or thicker
+              padding: '0.25rem 0.5rem',      // adjust highlight thickness
+              fontFamily: 'Utopia, serif',   // use Utopia for the title
             }}
           >
             crosshairs
@@ -105,12 +106,13 @@ export default function Home() {
           margin-top: 1rem; /* space above the buttons */
         }
         .nav-button {
-          display: inline-block;            /* ensures border-bottom sits under text */
+          display: inline-block;            
           font-size: 1.25rem;
           color: #555555;
-          text-decoration: none;             /* remove default underline */
-          padding-bottom: 0.25rem;           /* gap before underline */
+          text-decoration: none;             
+          padding-bottom: 0.25rem;           
           cursor: pointer;
+          font-family: Utopia, serif;        /* use Utopia for Analysis & About */
         }
         .nav-button:hover,
         .nav-button:active {

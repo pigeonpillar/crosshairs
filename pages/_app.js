@@ -6,7 +6,7 @@ export default function MyApp({ Component, pageProps }) {
     <>
       <Head>
         {/* Teal‐square favicon (replace with your own PNG if you prefer) */}
-        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </Head>
       <Component {...pageProps} />
     </>
