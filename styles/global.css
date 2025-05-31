@@ -1,34 +1,46 @@
+/* styles/global.css */
+
+/* 1) Flash keyframes */
+@keyframes flash {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0; }
+}
+
+/* 2) Full‐viewport reset & font stack */
 html,
 body {
-  padding: 0;
   margin: 0;
+  padding: 0;
   width: 100vw;
-  height: 100vw;
+  height: 100vh;
   overflow: hidden;
   font-family:
     Inter,
     -apple-system,
     BlinkMacSystemFont,
-    Segoe UI,
+    "Segoe UI",
     Roboto,
     Oxygen,
     Ubuntu,
     Cantarell,
-    Fira Sans,
-    Droid Sans,
-    Helvetica Neue,
+    "Fira Sans",
+    "Droid Sans",
+    "Helvetica Neue",
     sans-serif;
 }
 
+/* 3) Link styles */
 a {
   color: inherit;
   text-decoration: none;
 }
 
+/* 4) Box sizing */
 * {
   box-sizing: border-box;
 }
 
+/* 5) Responsive images */
 img {
   max-width: 100%;
   height: auto;
