@@ -30,7 +30,7 @@ export default function Home() {
           <span
             style={{
               display: 'inline-block',
-              fontSize: '2.5rem',
+              fontSize: '1.9rem',
               color: '#FFFFFF',
               backgroundColor: '#00BFAE',
               padding: '0.25rem 0.5rem',      // highlight thickness
