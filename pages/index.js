@@ -63,29 +63,29 @@ export default function Home() {
           <div className="cards-grid">
             {/* Card #1 */}
             <VideoCard
-              videoId="1065734388"
-              title="Geolocating Change in Gaza"
+              videoId="1089467631"
+              title="An Attack on a civilian car in Jenin City"
               excerpt="A step-by-step account of how satellite imagery and ground testimony reveal damage patterns."
               date="May 15, 2025"
-              slug="geolocation-gaza"
+              slug="jenin-car"
             />
 
             {/* Card #2 */}
             <VideoCard
-              videoId="1049735308"
-              title="Tracing Fire-Damage in Syria"
+              videoId="1089468404"
+              title="A killing in Beita - Nablus"
               excerpt="How we used 3D modeling and open-source footage to map destruction timelines."
               date="April 28, 2025"
-              slug="forensic-map-syria"
+              slug="ameed"
             />
 
             {/* Card #3 */}
             <VideoCard
-              videoId="1044162347"
-              title="Examining Hospital Attacks"
+              videoId="1089468776"
+              title="Mapping Settler Attacks in the Occupied West Bank"
               excerpt="Using witness testimonies and geospatial data to reconstruct incidents."
               date="March 10, 2025"
-              slug="analysis-hospital-attacks"
+              slug="settler-attacks"
             />
           </div>
         </div>
