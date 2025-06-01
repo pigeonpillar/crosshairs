@@ -35,7 +35,7 @@ export default function AnalysisHospitalAttacks() {
               fontWeight: 600,
             }}
           >
-            Examining Hospital Attacks
+            The Killing of Shatha Al-Sabbagh
           </span>
         </h1>
 
@@ -76,11 +76,11 @@ export default function AnalysisHospitalAttacks() {
             <a
               style={{
                 display: 'inline-block',
-                padding: '0.5rem 1rem',
+                padding: '0.2rem 0.5rem',
                 backgroundColor: '#00BFAE',
                 color: '#ffffff',
                 textDecoration: 'none',
-                borderRadius: '4px',
+                borderRadius: '0px',
                 fontFamily: 'Utopia, serif',
               }}
             >

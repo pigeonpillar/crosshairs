@@ -6,10 +6,10 @@ export default function ForensicMapSyria() {
   return (
     <>
       <Head>
-        <title>Tracing Fire-Damage in Syria – crosshairs</title>
+        <title>The Killing of Ameed Bani Shamseh</title>
         <meta
           name="description"
-          content="How we used 3D modeling and open-source footage to map destruction timelines in Syria."
+          content="How we used 3D modeling and open-source footage to investigate the killing of Ameed Bani Shamseh."
         />
       </Head>
 
@@ -35,7 +35,7 @@ export default function ForensicMapSyria() {
               fontWeight: 600,
             }}
           >
-            Tracing Fire-Damage in Syria
+            The killing of Ameed Bani Shamseh
           </span>
         </h1>
 
@@ -65,11 +65,11 @@ export default function ForensicMapSyria() {
             <a
               style={{
                 display: 'inline-block',
-                padding: '0.5rem 1rem',
+                padding: '0.2rem 0.5rem',
                 backgroundColor: '#00BFAE',
                 color: '#ffffff',
                 textDecoration: 'none',
-                borderRadius: '4px',
+                borderRadius: '0px',
                 fontFamily: 'Utopia, serif',
                 fontWeight: 400,
               }}

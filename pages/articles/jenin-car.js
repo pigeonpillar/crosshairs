@@ -6,7 +6,7 @@ export default function GeolocationGaza() {
   return (
     <>
       <Head>
-        <title>Geolocating Change in Gaza – crosshairs</title>
+        <title>An Attack on A Civilian Car in Jenin</title>
         <meta
           name="description"
           content="A step-by-step account of how satellite imagery and ground testimony reveal damage patterns in Gaza."
@@ -35,7 +35,7 @@ export default function GeolocationGaza() {
               fontWeight: 600,
             }}
           >
-            Geolocating Change in Gaza
+            An Attack on A Civilian Car in Jenin
           </span>
         </h1>
 
@@ -77,11 +77,11 @@ export default function GeolocationGaza() {
             <a
               style={{
                 display: 'inline-block',
-                padding: '0.5rem 1rem',
+                padding: '0.2rem 0.5rem',
                 backgroundColor: '#00BFAE',
                 color: '#ffffff',
                 textDecoration: 'none',
-                borderRadius: '4px',
+                borderRadius: '0px',
                 fontFamily: 'Utopia, serif',
               }}
             >
