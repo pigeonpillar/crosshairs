@@ -4,115 +4,125 @@ import React, { useRef, useEffect, useState } from 'react';
 import Link from 'next/link';
 
 /**
- * VideoCard renders:
- *  • a small Vimeo iframe above the text
- *  • on hover → plays ~5 seconds, then pauses
- *  • on mouse leave → immediately pauses
- *  • wraps the entire card in a Link so clicking anywhere navigates
- *
  * Props:
- *  • videoId (string) → the Vimeo video ID (e.g. "1065734388")
- *  • title   (string) → card title
- *  • excerpt (string) → card excerpt/description
- *  • date    (string) → card date (e.g. "May 15, 2025")
- *  • slug    (string) → route slug for the link (e.g. "geolocation-gaza")
+ *  • videoId (string) → Vimeo ID
+ *  • title   (string)
+ *  • excerpt (string)
+ *  • date    (string)
+ *  • slug    (string)
  */
 export default function VideoCard({ videoId, title, excerpt, date, slug }) {
   const iframeRef = useRef(null);
-  const [player, setPlayer] = useState(null);
+  const playerRef = useRef(null);
+  const timeoutRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
-    // Wait until Vimeo Player API is loaded (we include it in <Head> of index.js)
     if (!iframeRef.current || !window.Vimeo) return;
+    if (playerRef.current) return; // already initialized
 
-    // Instantiate a Vimeo player for this iframe
     const vimeoPlayer = new window.Vimeo.Player(iframeRef.current, {
       id: videoId,
-      muted: true,      // mute by default so hover-play doesn’t blast audio
-      autoplay: false,  // do NOT autoplay on load
-      background: false,
+      background: true, // hides UI elements
+      muted: true,
+      autoplay: false,
       loop: false,
     });
-
-    setPlayer(vimeoPlayer);
-
-    return () => {
-      vimeoPlayer.unload().catch(() => {});
-    };
+    playerRef.current = vimeoPlayer;
   }, [videoId]);
 
-  // Called when mouse enters the card → play 5 seconds, then pause
-  const handleMouseEnter = () => {
+  useEffect(() => {
+    const player = playerRef.current;
     if (!player) return;
-    player.setCurrentTime(0).then(() => {
-      player.play().catch(() => {});
-      setTimeout(() => {
-        player.getPaused().then((paused) => {
-          if (!paused) {
-            player.pause().catch(() => {});
-          }
-        });
-      }, 5000);
-    });
-  };
 
-  // Called when mouse leaves → pause immediately
-  const handleMouseLeave = () => {
-    if (!player) return;
-    player.pause().catch(() => {});
-  };
+    if (isHovering) {
+      player
+        .ready()
+        .then(() => player.setCurrentTime(0))
+        .then(() => player.play().catch(() => {}))
+        .catch(() => {});
+
+      timeoutRef.current = setTimeout(() => {
+        player.pause().catch(() => {});
+      }, 10000);
+    } else {
+      player.pause().catch(() => {});
+      player.setCurrentTime(0).catch(() => {});
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    }
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [isHovering]);
 
   return (
     <Link href={`/articles/${slug}`} legacyBehavior>
       <a style={{ textDecoration: 'none', color: 'inherit' }}>
         <article
-          style={{
-            border: '1px solid #ddd',
-            borderRadius: '0px',
-            padding: '1rem',
-            transition: 'box-shadow 0.2s',
-            cursor: 'pointer',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-            handleMouseEnter();
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.boxShadow = 'none';
-            handleMouseLeave();
-          }}
+          className="video-card"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
         >
-          {/* Vimeo iframe container */}
-          <div
-            style={{
-              position: 'relative',
-              paddingBottom: '56.25%', // 16:9 aspect ratio
-              height: 0,
-              marginBottom: '1rem',
-            }}
-          >
+          <div className="iframe-container">
             <iframe
               ref={iframeRef}
-              src={`https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0&badge=0&autopause=0&muted=1`}
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-              }}
+              src={`https://player.vimeo.com/video/${videoId}?background=1&muted=1`}
               frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+              allow="autoplay; fullscreen; picture-in-picture"
               title={title}
             />
           </div>
 
-          {/* Text content beneath the video snippet */}
-          <h3 style={{ marginTop: 0, color: '#939393', fontFamily: 'Utopia, serif', fontWeight: 400 }}>
-            {title}
-          </h3>
-          <p style={{ color: '#666', fontFamily: 'Utopia, serif', fontWeight: 300 }}>{excerpt}</p>
-          <small style={{ color: '#999', fontFamily: 'Utopia, serif', fontWeight: 300 }}>{date}</small>
+          <h3 className="title">{title}</h3>
+          <p className="excerpt">{excerpt}</p>
+          <small className="date">{date}</small>
+
+          <style jsx>{`
+            .video-card {
+              border: 1px solid #ddd;
+              border-radius: 0px;
+              padding: 1rem;
+              transition: box-shadow 0.2s;
+              cursor: pointer;
+            }
+            .video-card:hover {
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            }
+            .iframe-container {
+              position: relative;
+              padding-bottom: 56.25%; /* 16:9 */
+              height: 0;
+              margin-bottom: 1rem;
+            }
+            .iframe-container iframe {
+              position: absolute;
+              top: 0;
+              left: 0;
+              width: 100%;
+              height: 100%;
+            }
+            .title {
+              margin-top: 0;
+              color: #939393;
+              font-family: 'Utopia', serif;
+              font-weight: 400;
+            }
+            .excerpt {
+              color: #666;
+              font-family: 'Utopia', serif;
+              font-weight: 300;
+            }
+            .date {
+              color: #999;
+              font-family: 'Utopia', serif;
+              font-weight: 300;
+            }
+          `}</style>
         </article>
       </a>
     </Link>
