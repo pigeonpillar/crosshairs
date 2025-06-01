@@ -61,7 +61,7 @@ export default function About() {
         </ul>
 
         <p>
-          This project is powered by Mapbox, Vimeo, and various open‐source libraries, but its heart lies in the stories of people on
+          This project is powered by Mapbox, Blender, QGIS and various open‐source libraries, but its heart lies in the stories of people on
           the ground. My goal is to make each investigation as transparent as possible, so that readers can see not just conclusions but
           the evidence trail itself.
         </p>

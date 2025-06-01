@@ -8,6 +8,7 @@ import Link from 'next/link';
  *  • a small Vimeo iframe above the text
  *  • on hover → plays ~5 seconds, then pauses
  *  • on mouse leave → immediately pauses
+ *  • wraps the entire card in a Link so clicking anywhere navigates
  *
  * Props:
  *  • videoId (string) → the Vimeo video ID (e.g. "1065734388")
@@ -33,13 +34,10 @@ export default function VideoCard({ videoId, title, excerpt, date, slug }) {
       loop: false,
     });
 
-    // Store reference for event handlers
     setPlayer(vimeoPlayer);
 
     return () => {
-      vimeoPlayer.unload().catch(() => {
-        /* ignore unload errors */
-      });
+      vimeoPlayer.unload().catch(() => {});
     };
   }, [videoId]);
 
@@ -47,17 +45,11 @@ export default function VideoCard({ videoId, title, excerpt, date, slug }) {
   const handleMouseEnter = () => {
     if (!player) return;
     player.setCurrentTime(0).then(() => {
-      player.play().catch(() => {
-        /* ignore play errors */
-      });
-
-      // After 5 seconds, pause if still playing
+      player.play().catch(() => {});
       setTimeout(() => {
         player.getPaused().then((paused) => {
           if (!paused) {
-            player.pause().catch(() => {
-              /* ignore pause errors */
-            });
+            player.pause().catch(() => {});
           }
         });
       }, 5000);
@@ -67,65 +59,62 @@ export default function VideoCard({ videoId, title, excerpt, date, slug }) {
   // Called when mouse leaves → pause immediately
   const handleMouseLeave = () => {
     if (!player) return;
-    player.pause().catch(() => {
-      /* ignore pause errors */
-    });
+    player.pause().catch(() => {});
   };
 
   return (
-    <article
-      style={{
-        border: '1px solid #ddd',
-        borderRadius: '0px',
-        padding: '1rem',
-        transition: 'box-shadow 0.2s',
-      }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-        handleMouseEnter();
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = 'none';
-        handleMouseLeave();
-      }}
-    >
-      {/* Vimeo iframe container */}
-      <div
-        style={{
-          position: 'relative',
-          paddingBottom: '56.25%', // 16:9 aspect ratio
-          height: 0,
-          marginBottom: '1rem',
-        }}
-      >
-        <iframe
-          ref={iframeRef}
-          src={`https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0&badge=0&autopause=0&muted=1`}
+    <Link href={`/articles/${slug}`} legacyBehavior>
+      <a style={{ textDecoration: 'none', color: 'inherit' }}>
+        <article
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
+            border: '1px solid #ddd',
+            borderRadius: '0px',
+            padding: '1rem',
+            transition: 'box-shadow 0.2s',
+            cursor: 'pointer',
           }}
-          frameBorder="0"
-          allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
-          title={title}
-        />
-      </div>
+          onMouseEnter={(e) => {
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+            handleMouseEnter();
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.boxShadow = 'none';
+            handleMouseLeave();
+          }}
+        >
+          {/* Vimeo iframe container */}
+          <div
+            style={{
+              position: 'relative',
+              paddingBottom: '56.25%', // 16:9 aspect ratio
+              height: 0,
+              marginBottom: '1rem',
+            }}
+          >
+            <iframe
+              ref={iframeRef}
+              src={`https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0&badge=0&autopause=0&muted=1`}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+              }}
+              frameBorder="0"
+              allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+              title={title}
+            />
+          </div>
 
-      {/* Text content beneath the video snippet */}
-      <Link
-        href={`/articles/${slug}`}
-        style={{ textDecoration: 'none', color: 'inherit' }}
-        legacyBehavior
-      >
-        <a style={{ textDecoration: 'none', color: 'inherit' }}>
-          <h3 style={{ marginTop: 0, color: '#939393' }}>{title}</h3>
-          <p style={{ color: '#666' }}>{excerpt}</p>
-          <small style={{ color: '#999' }}>{date}</small>
-        </a>
-      </Link>
-    </article>
+          {/* Text content beneath the video snippet */}
+          <h3 style={{ marginTop: 0, color: '#939393', fontFamily: 'Utopia, serif', fontWeight: 400 }}>
+            {title}
+          </h3>
+          <p style={{ color: '#666', fontFamily: 'Utopia, serif', fontWeight: 300 }}>{excerpt}</p>
+          <small style={{ color: '#999', fontFamily: 'Utopia, serif', fontWeight: 300 }}>{date}</small>
+        </article>
+      </a>
+    </Link>
   );
 }
