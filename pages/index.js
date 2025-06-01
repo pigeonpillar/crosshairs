@@ -81,11 +81,11 @@ export default function Home() {
 
             {/* Card #3 */}
             <VideoCard
-              videoId="1089468776"
+              videoId="1089473539"
               title="Mapping Settler Attacks in the Occupied West Bank"
               excerpt="Using witness testimonies and geospatial data to reconstruct incidents."
               date="March 10, 2025"
-              slug="settler-attacks"
+              slug="shatha-sabbagh"
             />
           </div>
         </div>
