@@ -1,4 +1,4 @@
-// pages/index.js
+// pages/index.js (no changes needed here)
 import Head from 'next/head';
 import React from 'react';
 import VideoCard from '../components/VideoCard';

@@ -1,6 +1,6 @@
 // components/VideoCard.jsx
 'use client';
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 
 /**
@@ -14,64 +14,30 @@ import Link from 'next/link';
 export default function VideoCard({ videoId, title, excerpt, date, slug }) {
   const iframeRef = useRef(null);
   const playerRef = useRef(null);
-  const timeoutRef = useRef(null);
-  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
     if (!iframeRef.current || !window.Vimeo) return;
     if (playerRef.current) return; // already initialized
 
+    // Initialize the Vimeo player, autoplaying and looping
     const vimeoPlayer = new window.Vimeo.Player(iframeRef.current, {
       id: videoId,
       background: true, // hides UI elements
       muted: true,
-      autoplay: false,
-      loop: false,
+      autoplay: true,
+      loop: true,
     });
     playerRef.current = vimeoPlayer;
   }, [videoId]);
 
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-
-    if (isHovering) {
-      player
-        .ready()
-        .then(() => player.setCurrentTime(0))
-        .then(() => player.play().catch(() => {}))
-        .catch(() => {});
-
-      timeoutRef.current = setTimeout(() => {
-        player.pause().catch(() => {});
-      }, 10000);
-    } else {
-      player.pause().catch(() => {});
-      player.setCurrentTime(0).catch(() => {});
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    }
-
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [isHovering]);
-
   return (
     <Link href={`/articles/${slug}`} legacyBehavior>
       <a style={{ textDecoration: 'none', color: 'inherit' }}>
-        <article
-          className="video-card"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        >
+        <article className="video-card">
           <div className="iframe-container">
             <iframe
               ref={iframeRef}
-              src={`https://player.vimeo.com/video/${videoId}?background=1&muted=1`}
+              src={`https://player.vimeo.com/video/${videoId}?background=1&muted=1&loop=1`}
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture"
               title={title}
