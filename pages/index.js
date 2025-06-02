@@ -1,4 +1,4 @@
-// pages/index.js (no changes needed here)
+// pages/index.js
 import Head from 'next/head';
 import React from 'react';
 import VideoCard from '../components/VideoCard';
@@ -68,6 +68,9 @@ export default function Home() {
         <div className="nav-buttons">
           <Link href="/analysis" legacyBehavior>
             <a className="nav-button">Analysis</a>
+          </Link>
+          <Link href="/map" legacyBehavior>
+            <a className="nav-button">Map</a>
           </Link>
           <Link href="/about" legacyBehavior>
             <a className="nav-button">About</a>
