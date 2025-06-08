@@ -14,8 +14,8 @@ export default function MapPage() {
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: [34.8, 31.5], // Default center: roughly around Jerusalem
+      style: 'mapbox://styles/h-fai/cmbnzh69a00sq01sebq3920db',
+      center: [34.8, 31.5], // Jerusalem area
       zoom: 6,
     });
 
