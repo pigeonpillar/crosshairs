@@ -17,6 +17,8 @@ export default function MapPage() {
       style: 'mapbox://styles/h-fai/cmbnzh69a00sq01sebq3920db',
       center: [34.8, 31.5], // Jerusalem area
       zoom: 6,
+      minZoom: 5,    // minimum zoom level
+      maxZoom: 12,   // maximum zoom level
     });
 
     // Add navigation controls (zoom buttons, compass)
