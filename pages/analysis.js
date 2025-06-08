@@ -3,7 +3,6 @@ import Head from 'next/head';
 import Link from 'next/link';
 
 export default function Analysis() {
-  // Hard-coded list of articles (same slugs as Home, but rendered as text links here)
   const stories = [
     {
       slug: 'jenin-car',
@@ -32,9 +31,11 @@ export default function Analysis() {
     <>
       <Head>
         <title>Analysis – crosshairs</title>
-        <meta
-          name="description"
-          content="All analysis articles on crosshairs."
+        <meta name="description" content="All analysis articles on crosshairs." />
+        {/* Google Fonts import */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
         />
       </Head>
 
@@ -53,7 +54,8 @@ export default function Analysis() {
               color: '#FFFFFF',
               backgroundColor: '#00BFAE',
               padding: '0.25rem 0.5rem',
-              fontFamily: 'Utopia, serif',
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 600, // Analysis title at 600
             }}
           >
             Analysis
@@ -78,8 +80,9 @@ export default function Analysis() {
             style={{
               fontSize: '1.2rem',
               marginBottom: '1rem',
-              color: '#D3D3D3',
-              fontFamily: 'Utopia, serif',
+              color: 'grey', // text in cyan underneath
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 350,  // cyan text at 350
             }}
           >
             All Articles
@@ -122,7 +125,6 @@ export default function Analysis() {
         .story-link {
           text-decoration: none;
           color: inherit;
-          font-family: 'Utopia', serif;
         }
         .story-header {
           display: flex;
@@ -132,16 +134,22 @@ export default function Analysis() {
         .story-title {
           margin: 0;
           font-size: 1.5rem;
-          color: #00BFAE;
+          color: #00BFAE; /* cyan title */
+          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+          font-weight: 350; /* cyan text at 350 */
         }
         .story-date {
           font-size: 0.9rem;
           color: #999;
+          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+          font-weight: 300; /* dark gray under it at 300 */
         }
         .story-excerpt {
           margin: 0.5rem 0 0 0;
-          color: #666;
+          color: #666; /* dark gray */
           font-size: 1rem;
+          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+          font-weight: 300; /* dark gray under it at 300 */
         }
 
         /* Navigation buttons under the title */
@@ -158,7 +166,8 @@ export default function Analysis() {
           text-decoration: none;
           padding-bottom: 0.25rem;
           cursor: pointer;
-          font-family: 'Utopia', serif;
+          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+          font-weight: 400; /* nav buttons at 400 */
         }
         .nav-button:hover,
         .nav-button:active {

@@ -10,18 +10,18 @@ export default function MapPage() {
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    mapboxgl.accessToken = 'pk.eyJ1IjoiaC1mYWkiLCJhIjoiY204cTFwazA3MGdzcDJqc2FhcThiNW0zaSJ9.wnQhzTrZaCPquno5APsbrg';
+    mapboxgl.accessToken =
+      'pk.eyJ1IjoiaC1mYWkiLCJhIjoiY204cTFwazA3MGdzcDJqc2FhcThiNW0zaSJ9.wnQhzTrZaCPquno5APsbrg';
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/h-fai/cmbnzh69a00sq01sebq3920db',
-      center: [34.8, 31.5], // Jerusalem area
+      center: [34.8, 31.5],
       zoom: 6,
-      minZoom: 5,    // minimum zoom level
-      maxZoom: 12,   // maximum zoom level
+      minZoom: 5,
+      maxZoom: 12,
     });
 
-    // Add navigation controls (zoom buttons, compass)
     map.addControl(new mapboxgl.NavigationControl(), 'top-right');
 
     return () => {
@@ -34,6 +34,11 @@ export default function MapPage() {
       <Head>
         <title>Map – crosshairs</title>
         <meta name="description" content="Interactive Map – crosshairs" />
+        {/* Google Fonts */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         {/* Mapbox GL JS stylesheet */}
         <link
           href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css"
@@ -56,7 +61,8 @@ export default function MapPage() {
               color: '#FFFFFF',
               backgroundColor: '#00BFAE',
               padding: '0.25rem 0.5rem',
-              fontFamily: 'Utopia, serif',
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 600,
             }}
           >
             Map
@@ -82,12 +88,11 @@ export default function MapPage() {
       <style jsx>{`
         .map-container {
           width: 100%;
-          height: 80vh; /* Adjust height as needed */
+          height: 80vh;
           border-radius: 8px;
           margin: 0 auto 2rem auto;
           max-width: 1200px;
         }
-
         .nav-buttons {
           display: flex;
           justify-content: center;
@@ -101,13 +106,13 @@ export default function MapPage() {
           text-decoration: none;
           padding-bottom: 0.25rem;
           cursor: pointer;
-          font-family: 'Utopia', serif;
+          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+          font-weight: 400;
         }
         .nav-button:hover,
         .nav-button:active {
           border-bottom: 2px solid #00BFAE;
         }
-
         @media (max-width: 600px) {
           .map-container {
             height: 60vh;

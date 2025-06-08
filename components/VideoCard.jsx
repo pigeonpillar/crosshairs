@@ -3,31 +3,20 @@
 import React, { useRef, useEffect } from 'react';
 import Link from 'next/link';
 
-/**
- * Props:
- *  • videoId (string) → Vimeo ID
- *  • title   (string)
- *  • excerpt (string)
- *  • date    (string)
- *  • slug    (string)
- */
 export default function VideoCard({ videoId, title, excerpt, date, slug }) {
   const iframeRef = useRef(null);
   const playerRef = useRef(null);
 
   useEffect(() => {
     if (!iframeRef.current || !window.Vimeo) return;
-    if (playerRef.current) return; // already initialized
-
-    // Initialize the Vimeo player, autoplaying and looping
-    const vimeoPlayer = new window.Vimeo.Player(iframeRef.current, {
+    if (playerRef.current) return;
+    playerRef.current = new window.Vimeo.Player(iframeRef.current, {
       id: videoId,
-      background: true, // hides UI elements
+      background: true,
       muted: true,
       autoplay: true,
       loop: true,
     });
-    playerRef.current = vimeoPlayer;
   }, [videoId]);
 
   return (
@@ -44,9 +33,9 @@ export default function VideoCard({ videoId, title, excerpt, date, slug }) {
             />
           </div>
 
-          <h3 className="title">{title}</h3>
-          <p className="excerpt">{excerpt}</p>
-          <small className="date">{date}</small>
+          <h3 className="card-title">{title}</h3>
+          <p className="card-excerpt">{excerpt}</p>
+          <small className="card-date">{date}</small>
 
           <style jsx>{`
             .video-card {
@@ -61,7 +50,7 @@ export default function VideoCard({ videoId, title, excerpt, date, slug }) {
             }
             .iframe-container {
               position: relative;
-              padding-bottom: 56.25%; /* 16:9 */
+              padding-bottom: 56.25%;
               height: 0;
               margin-bottom: 1rem;
             }
@@ -72,21 +61,26 @@ export default function VideoCard({ videoId, title, excerpt, date, slug }) {
               width: 100%;
               height: 100%;
             }
-            .title {
-              margin-top: 0;
+
+            /* ← font updates below */
+            .card-title {
+              margin: 0 0 0.5rem 0;
+              font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+              font-weight: 400;       /* or whatever weight you prefer */
+              font-size: 1.25rem;
               color: #939393;
-              font-family: 'Utopia', serif;
-              font-weight: 400;
             }
-            .excerpt {
+            .card-excerpt {
+              margin: 0 0 0.5rem 0;
+              font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+              font-weight: 300;
               color: #666;
-              font-family: 'Utopia', serif;
-              font-weight: 300;
             }
-            .date {
-              color: #999;
-              font-family: 'Utopia', serif;
+            .card-date {
+              font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
               font-weight: 300;
+              color: #999;
+              font-size: 0.875rem;
             }
           `}</style>
         </article>

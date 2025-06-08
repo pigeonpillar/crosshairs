@@ -11,6 +11,11 @@ export default function ForensicMapSyria() {
           name="description"
           content="How we used 3D modeling and open-source footage to investigate the killing of Ameed Bani Shamseh."
         />
+        {/* Google Fonts import */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
 
       <main
@@ -18,7 +23,8 @@ export default function ForensicMapSyria() {
           maxWidth: '800px',
           margin: '3rem auto',
           padding: '0 1rem',
-          fontFamily: 'Utopia, serif',
+          fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+          fontWeight: 300,       // body text at weight 300
           lineHeight: '1.6',
           color: '#333333',
         }}
@@ -31,8 +37,8 @@ export default function ForensicMapSyria() {
               backgroundColor: '#00BFAE',
               color: '#FFFFFF',
               padding: '0.25rem 0.5rem',
-              fontFamily: 'Utopia, serif',
-              fontWeight: 600,
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 600,   // title at weight 600
             }}
           >
             The killing of Ameed Bani Shamseh
@@ -70,8 +76,8 @@ export default function ForensicMapSyria() {
                 color: '#ffffff',
                 textDecoration: 'none',
                 borderRadius: '0px',
-                fontFamily: 'Utopia, serif',
-                fontWeight: 400,
+                fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+                fontWeight: 400,   // button at weight 400
               }}
             >
               ← Back to Home

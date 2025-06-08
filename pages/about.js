@@ -11,6 +11,11 @@ export default function About() {
           name="description"
           content="About crosshairs: in-depth visual investigations and geolocation analysis by Ash."
         />
+        {/* Google Fonts import */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
 
       {/* ABOUT SECTION */}
@@ -21,9 +26,19 @@ export default function About() {
           padding: '0 1rem',
           color: '#333333',
           lineHeight: '1.6',
+          fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+          fontWeight: 300, // body text at weight 300
         }}
       >
-        <h1 style={{ fontSize: '2rem', marginBottom: '1rem', color: '#00BFAE' }}>
+        <h1
+          style={{
+            fontSize: '2rem',
+            marginBottom: '1rem',
+            color: '#00BFAE',
+            fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+            fontWeight: 600, // title at weight 600
+          }}
+        >
           About crosshairs
         </h1>
 
@@ -68,9 +83,18 @@ export default function About() {
 
         <p>
           If you have questions, feedback, or would like to collaborate on a project, feel free to{' '}
-          <a href="mailto:info@crosshairs.uk" style={{ color: '#00BFAE', textDecoration: 'underline' }}>
+          <a
+            href="mailto:info@crosshairs.uk"
+            style={{
+              color: '#00BFAE',
+              textDecoration: 'underline',
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 300, // link in body text at weight 300
+            }}
+          >
             get in touch
-          </a>. Thank you for visiting <strong>crosshairs</strong>—I hope these investigations shed light on the realities that too
+          </a>
+          . Thank you for visiting <strong>crosshairs</strong>—I hope these investigations shed light on the realities that too
           often remain hidden.
         </p>
 
@@ -85,6 +109,8 @@ export default function About() {
                 color: '#ffffff',
                 textDecoration: 'none',
                 borderRadius: '0px',
+                fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+                fontWeight: 400, // button at weight 400
               }}
             >
               ← Back to Home

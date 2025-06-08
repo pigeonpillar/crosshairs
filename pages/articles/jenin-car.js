@@ -11,6 +11,11 @@ export default function GeolocationGaza() {
           name="description"
           content="A step-by-step account of how satellite imagery and ground testimony reveal damage patterns in Gaza."
         />
+        {/* Google Fonts import */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
       </Head>
 
       <main
@@ -18,7 +23,8 @@ export default function GeolocationGaza() {
           maxWidth: '800px',
           margin: '3rem auto',
           padding: '0 1rem',
-          fontFamily: 'Utopia, serif',
+          fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+          fontWeight: 300, // body text at weight 300
           lineHeight: '1.6',
           color: '#333333',
         }}
@@ -31,8 +37,8 @@ export default function GeolocationGaza() {
               backgroundColor: '#00BFAE',
               color: '#FFFFFF',
               padding: '0.25rem 0.5rem',
-              fontFamily: 'Utopia, serif',
-              fontWeight: 600,
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 600, // title at weight 600
             }}
           >
             An Attack on A Civilian Car in Jenin
@@ -49,21 +55,11 @@ export default function GeolocationGaza() {
           <strong>Key steps include:</strong>
         </p>
         <ul style={{ marginLeft: '1.5rem' }}>
-          <li>
-            Procuring multi‐temporal satellite datasets from sources like Maxar and Planet Labs.
-          </li>
-          <li>
-            Aligning georeferenced ground photos and videos to validate timestamps and locations.
-          </li>
-          <li>
-            Digitizing damage footprints (buildings, infrastructure) in a GIS environment.
-          </li>
-          <li>
-            Generating before‐and‐after composite maps to highlight changes visually.
-          </li>
-          <li>
-            Cross‐referencing findings with open‐source social media reports and NGO documentation.
-          </li>
+          <li>Procuring multi‐temporal satellite datasets from sources like Maxar and Planet Labs.</li>
+          <li>Aligning georeferenced ground photos and videos to validate timestamps and locations.</li>
+          <li>Digitizing damage footprints (buildings, infrastructure) in a GIS environment.</li>
+          <li>Generating before‐and‐after composite maps to highlight changes visually.</li>
+          <li>Cross‐referencing findings with open‐source social media reports and NGO documentation.</li>
         </ul>
         <p>
           The resulting maps and narratives provide a clearer understanding of when, where, and how damage occurred. This
@@ -82,7 +78,8 @@ export default function GeolocationGaza() {
                 color: '#ffffff',
                 textDecoration: 'none',
                 borderRadius: '0px',
-                fontFamily: 'Utopia, serif',
+                fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+                fontWeight: 400, // button at weight 400
               }}
             >
               ← Back to Home

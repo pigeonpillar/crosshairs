@@ -40,6 +40,11 @@ export default function Home() {
           name="description"
           content="In-depth visual investigations, geolocations, and analysis articles."
         />
+        {/* Google Fonts import */}
+        <link
+          href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
         <script src="https://player.vimeo.com/api/player.js" async></script>
       </Head>
 
@@ -58,7 +63,8 @@ export default function Home() {
               color: '#FFFFFF',
               backgroundColor: '#00BFAE',
               padding: '0.25rem 0.5rem',
-              fontFamily: 'Utopia, serif',
+              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
+              fontWeight: 600, // ensure Space Grotesk at weight 600
             }}
           >
             crosshairs
@@ -122,7 +128,8 @@ export default function Home() {
           text-decoration: none;
           padding-bottom: 0.25rem;
           cursor: pointer;
-          font-family: 'Utopia', serif;
+          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
+          font-weight: 400; /* make nav buttons weight 400 */
         }
         .nav-button:hover,
         .nav-button:active {
