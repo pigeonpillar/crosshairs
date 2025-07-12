@@ -7,37 +7,26 @@ const SHEET_URL =
   'https://script.google.com/macros/s/AKfycbwTFeghc93ynbo-8s4YqrPx2ofhIINo4Zl8e9GDXVlFJ6oN4p1Gqj5pu9CWyt2ZtJyypQ/exec';
 
 export async function getServerSideProps() {
-  let raw = null;
   let incidents = [];
 
   try {
     const res = await fetch(SHEET_URL);
     if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
-    raw = await res.json();
+    const raw = await res.json();
 
-    if (Array.isArray(raw)) incidents = raw;
-    else if (Array.isArray(raw.records)) incidents = raw.records;
-    else if (
-      raw && typeof raw === 'object' &&
-      Object.values(raw).length > 0 &&
-      Object.values(raw).every(col => Array.isArray(col))
-    ) {
-      const cols = Object.keys(raw);
-      const rowCount = raw[cols[0]].length;
-      incidents = Array.from({ length: rowCount }, (_, i) => {
-        const obj = {};
-        cols.forEach(col => { obj[col] = raw[col][i]; });
-        return obj;
-      });
-    } else if (raw && typeof raw === 'object') {
-      incidents = Object.values(raw);
+    // Flatten if data is under a key like "Sheet1", "Sheet2", etc.
+    const values = Object.values(raw);
+    if (values.length === 1 && typeof values[0] === 'object' && !Array.isArray(values[0])) {
+      incidents = [values[0]]; // single row
+    } else if (Array.isArray(values[0])) {
+      incidents = values[0]; // array of rows
+    } else {
+      incidents = values;
     }
 
-    incidents.sort((a, b) => {
-      const dA = new Date(`${a['Incident date']}T${a['incident time']}`);
-      const dB = new Date(`${b['Incident date']}T${b['incident time']}`);
-      return dB - dA;
-    });
+    // Optional: Filter out rows with no useful data
+    incidents = incidents.filter(obj => obj && typeof obj === 'object' && Object.keys(obj).length > 0);
+
   } catch (error) {
     console.error('getServerSideProps error:', error);
   }
@@ -45,7 +34,7 @@ export async function getServerSideProps() {
   return { props: { incidents } };
 }
 
-export default function Home({ incidents }) {
+export default function Home({ incidents = [] }) {
   return (
     <>
       <Head>
@@ -55,22 +44,30 @@ export default function Home({ incidents }) {
 
       <main>
         <h1 className="page-title">Incident Timeline</h1>
+
         <section className="timeline">
           {incidents.map((it, i) => {
-            // prepare embed URL
-            console.log('Visuals & Link for index', i, it.Visuals, it.Link);
-                  const embedUrl = it.Link && it.Link.includes('drive.google.com')
-              ? it.Link.replace('/view?usp=sharing', '/preview')
-              : it.Link;
+            const incidentDate = it['Incident date'] !== '-' ? it['Incident date'] : '';
+            const incidentTime = it['incident time'] !== '-' ? it['incident time'] : '';
+            const postDate = it['Post Date'] !== '-' ? it['Post Date'] : '';
+            const postTime = it['Post time'] !== '-' ? it['Post time'] : '';
+            const visuals = String(it.Visuals || '').trim().toLowerCase();
+            const link = it.Link !== '-' ? it.Link : '';
+            const references = it['References'] && it['References'].startsWith('http') ? it['References'] : '';
+            const title = it['الحدث']?.trim() || it['Incident']?.trim() || 'No title';
+
+            const embedUrl = link.includes('drive.google.com')
+              ? link.replace('/view?usp=sharing', '/preview')
+              : link;
 
             return (
               <div key={i} className="event">
                 <div className="marker" />
                 <div className="content">
 
-                  {/* Visual material box */}
+                  {/* Visuals */}
                   <div className="visual-box">
-                    {String(it.Visuals).trim().toLowerCase() === 'yes' && it.Link ? (
+                    {visuals === 'yes' && link ? (
                       <iframe
                         src={embedUrl}
                         title={`Visual material ${i}`}
@@ -85,38 +82,38 @@ export default function Home({ incidents }) {
                     )}
                   </div>
 
-                  {/* Incident description box */}
+                  {/* Description */}
                   <div className="incident-box">
-                    <div className="incident-text">
-                      {it['الحدث']?.trim() || it.Incident?.trim() || 'No title'}
-                    </div>
+                    <div className="incident-text">{title}</div>
                   </div>
 
-                  {/* Details grid */}
+                  {/* Meta Info */}
                   <div className="grid">
                     <div>
-                      <p><strong>Posted date:</strong> {it['Post Date']}</p>
-                      <p><strong>Post time:</strong> {it['Post time']}</p>
+                      <p><strong>Posted date:</strong> {postDate}</p>
+                      <p><strong>Post time:</strong> {postTime}</p>
                     </div>
                     <div>
-                      <p><strong>Incident date:</strong> {it['Incident date']}</p>
-                      <p><strong>Incident time:</strong> {it['incident time']}</p>
+                      <p><strong>Incident date:</strong> {incidentDate}</p>
+                      <p><strong>Incident time:</strong> {incidentTime}</p>
                     </div>
                   </div>
 
-                  {/* References link */}
-                  {it['References']?.startsWith('http') && (
+                  {/* Reference Link */}
+                  {references && (
                     <p className="refs">
                       🔗 References:{' '}
-                      <a href={it['References']} target="_blank" rel="noopener noreferrer">
+                      <a href={references} target="_blank" rel="noopener noreferrer">
                         View
                       </a>
                     </p>
                   )}
+
                 </div>
               </div>
             );
           })}
+
           {incidents.length === 0 && (
             <p style={{ textAlign: 'center', color: '#666' }}>
               No incidents to display.
