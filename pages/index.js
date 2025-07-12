@@ -1,143 +1,181 @@
 // pages/index.js
+
 import Head from 'next/head';
 import React from 'react';
-import VideoCard from '../components/VideoCard';
-import Link from 'next/link';
 
-export default function Home() {
-  const stories = [
-    {
-      videoId: '1089467631',
-      title: 'An Attack on a Civilian Car in Jenin City',
-      excerpt:
-        'A step-by-step account of how satellite imagery and ground testimony reveal damage patterns.',
-      date: 'May 15, 2025',
-      slug: 'jenin-car',
-    },
-    {
-      videoId: '1089468404',
-      title: 'A Killing in Beita - Nablus',
-      excerpt:
-        'How we used 3D modeling and open-source footage to map destruction timelines.',
-      date: 'April 28, 2025',
-      slug: 'ameed',
-    },
-    {
-      videoId: '1089473539',
-      title: 'Mapping Settler Attacks in the Occupied West Bank',
-      excerpt:
-        'Using witness testimonies and geospatial data to reconstruct incidents.',
-      date: 'March 10, 2025',
-      slug: 'shatha-sabbagh',
-    },
-  ];
+const SHEET_URL =
+  'https://script.google.com/macros/s/AKfycbxHEBZ25UNQHYp1McBgZS_vPsoXgJh6ENdMdtNKcP6CZobnjzsA8eJwl6wOxKSGjpJcOw/exec';
 
+export async function getServerSideProps() {
+  let raw = null;
+  let incidents = [];
+
+  try {
+    const res = await fetch(SHEET_URL);
+    if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
+    raw = await res.json();
+
+    // 1) If it’s already an array of objects…
+    if (Array.isArray(raw)) {
+      incidents = raw;
+    }
+    // 2) If it’s under a “records” key…
+    else if (Array.isArray(raw.records)) {
+      incidents = raw.records;
+    }
+    // 3) If every value is an array (column-arrays), pivot into rows…
+    else if (
+      raw &&
+      typeof raw === 'object' &&
+      Object.values(raw).length > 0 &&
+      Object.values(raw).every((col) => Array.isArray(col))
+    ) {
+      const cols = Object.keys(raw);
+      const rowCount = raw[cols[0]].length;
+      incidents = Array.from({ length: rowCount }, (_, i) => {
+        const obj = {};
+        cols.forEach((col) => {
+          obj[col] = raw[col][i];
+        });
+        return obj;
+      });
+    }
+    // 4) Fallback: take whatever values you can
+    else if (raw && typeof raw === 'object') {
+      incidents = Object.values(raw);
+    }
+
+    // Sort newest first by Incident date/time
+    incidents.sort((a, b) => {
+      const dA = new Date(`${a['Incident date']}T${a['incident time']}`);
+      const dB = new Date(`${b['Incident date']}T${b['incident time']}`);
+      return dB - dA;
+    });
+  } catch (error) {
+    console.error('getServerSideProps error:', error);
+  }
+
+  return { props: { incidents } };
+}
+
+export default function Home({ incidents }) {
   return (
     <>
       <Head>
-        <title>crosshairs – Investigations &amp; Geolocation Analysis</title>
+        <title>crosshairs – Incident Timeline</title>
         <meta
           name="description"
-          content="In-depth visual investigations, geolocations, and analysis articles."
+          content="Vertical timeline of incidents from Google Sheets"
         />
-        {/* Google Fonts import */}
         <link
           href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,100;0,200;0,300;0,400;0,700;1,100;1,200;1,300;1,400;1,700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
           rel="stylesheet"
         />
-        <script src="https://player.vimeo.com/api/player.js" async></script>
       </Head>
 
-      {/* HERO / Title Section */}
-      <section
-        style={{
-          textAlign: 'center',
-          margin: '4rem 0',
-        }}
-      >
-        <h1 style={{ marginBottom: '1rem' }}>
-          <span
-            style={{
-              display: 'inline-block',
-              fontSize: '1.9rem',
-              color: '#FFFFFF',
-              backgroundColor: '#00BFAE',
-              padding: '0.25rem 0.5rem',
-              fontFamily: "'Space Grotesk', 'Roboto Mono', sans-serif",
-              fontWeight: 600, // ensure Space Grotesk at weight 600
-            }}
-          >
-            crosshairs
-          </span>
-        </h1>
-
-        <div className="nav-buttons">
-          <Link href="/analysis" legacyBehavior>
-            <a className="nav-button">Analysis</a>
-          </Link>
-          <Link href="/map" legacyBehavior>
-            <a className="nav-button">Map</a>
-          </Link>
-          <Link href="/about" legacyBehavior>
-            <a className="nav-button">About</a>
-          </Link>
-        </div>
-      </section>
-
-      {/* FEATURED STORIES / CARDS */}
-      <section>
-        <div className="cards-container">
-          <h2 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: '#D3D3D3' }}>
-            Featured Stories
-          </h2>
-
-          <div className="cards-grid">
-            {stories.map((story) => (
-              <VideoCard
-                key={story.slug}
-                videoId={story.videoId}
-                title={story.title}
-                excerpt={story.excerpt}
-                date={story.date}
-                slug={story.slug}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      <main>
+        <h1 className="page-title">Incident Timeline</h1>
+        <section className="timeline">
+          {incidents.map((it, i) => (
+            <div key={i} className="event">
+              <div className="marker" />
+              <div className="content">
+                <time>
+                  {it['Incident date']} @ {it['incident time']}
+                </time>
+                <h3>{it['الحدث'] || it.Incident}</h3>
+                <p>
+                  <strong>Posted:</strong> {it['Post Date']} @ {it['Post time']}
+                </p>
+                {it.Visuals && <p>🎥 Visuals: {it.Visuals}</p>}
+                <p>🔊 Audio?: {it['Audio?']}</p>
+                <p>
+                  🔗 Link:{' '}
+                  <a href={it.Link} target="_blank" rel="noopener noreferrer">
+                    View
+                  </a>
+                </p>
+                <p>
+                  📁 Folder/File:{' '}
+                  <a
+                    href={it['Folder/File']}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Open
+                  </a>
+                </p>
+                <p>📑 Source Type: {it['Source Type']}</p>
+                <p>🔗 References: {it.References}</p>
+              </div>
+            </div>
+          ))}
+          {incidents.length === 0 && (
+            <p style={{ textAlign: 'center', color: '#666' }}>
+              No incidents to display.
+            </p>
+          )}
+        </section>
+      </main>
 
       <style jsx>{`
-        .cards-container {
-          padding: 0 50px;
+        .page-title {
+          text-align: center;
+          margin: 2rem 0;
+          font-family: 'Space Grotesk', sans-serif;
         }
-        .cards-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-          gap: 1.5rem;
+        .timeline {
+          position: relative;
+          margin: 2rem auto;
+          max-width: 800px;
+          padding-left: 2rem;
+          border-left: 3px solid #00bfae;
         }
-        .nav-buttons {
-          display: flex;
-          justify-content: center;
-          gap: 2rem;
-          margin-top: 1rem;
+        .event {
+          position: relative;
+          margin-bottom: 2rem;
         }
-        .nav-button {
-          display: inline-block;
-          font-size: 1.25rem;
-          color: #555555;
-          text-decoration: none;
-          padding-bottom: 0.25rem;
-          cursor: pointer;
-          font-family: 'Space Grotesk', 'Roboto Mono', sans-serif;
-          font-weight: 400; /* make nav buttons weight 400 */
+        .marker {
+          position: absolute;
+          left: -10px;
+          top: 4px;
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #00bfae;
         }
-        .nav-button:hover,
-        .nav-button:active {
-          border-bottom: 2px solid #00BFAE;
+        .content {
+          padding-left: 1rem;
+          font-family: 'Roboto Mono', monospace;
+          background: #fff;
+          border-radius: 6px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          padding: 1rem;
+        }
+        .content time {
+          font-size: 0.85rem;
+          color: #666;
+        }
+        .content h3 {
+          margin: 0.5rem 0;
+          font-family: 'Space Grotesk', sans-serif;
+          color: #333;
+        }
+        .content p {
+          margin: 0.25rem 0;
+          line-height: 1.4;
+        }
+        .content a {
+          color: #00bfae;
+          text-decoration: underline;
         }
         @media (max-width: 600px) {
-          .cards-container {
-            padding: 0 10px;
+          .timeline {
+            padding-left: 1rem;
+            border-left-width: 2px;
+          }
+          .content {
+            padding: 0.75rem;
           }
         }
       `}</style>
