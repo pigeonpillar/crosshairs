@@ -3,6 +3,27 @@
 import Head from 'next/head';
 import React from 'react';
 
+// utility to format ISO date to DD/MM/YYYY
+function formatDate(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString('en-GB');
+}
+
+// utility to format ISO datetime or time to HH:MM
+function formatTime(isoOrTime) {
+  if (!isoOrTime) return '';
+  const d = new Date(isoOrTime);
+  // if it's just a time like "22:26:00", Date may parse today+that time:
+  if (isNaN(d)) {
+    // fallback: strip to HH:MM
+    const m = isoOrTime.match(/(\d{2}:\d{2})/);
+    return m ? m[1] : '';
+  }
+  return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
 const SHEET_URL =
   'https://script.google.com/macros/s/AKfycbwTFeghc93ynbo-8s4YqrPx2ofhIINo4Zl8e9GDXVlFJ6oN4p1Gqj5pu9CWyt2ZtJyypQ/exec';
 
@@ -14,19 +35,19 @@ export async function getServerSideProps() {
     if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
     const raw = await res.json();
 
-    // Flatten if data is under a key like "Sheet1", "Sheet2", etc.
+    // Flatten if data is under a key like "Sheet1", etc.
     const values = Object.values(raw);
     if (values.length === 1 && typeof values[0] === 'object' && !Array.isArray(values[0])) {
-      incidents = [values[0]]; // single row
+      incidents = [values[0]];
     } else if (Array.isArray(values[0])) {
-      incidents = values[0]; // array of rows
+      incidents = values[0];
     } else {
       incidents = values;
     }
 
-    // Optional: Filter out rows with no useful data
-    incidents = incidents.filter(obj => obj && typeof obj === 'object' && Object.keys(obj).length > 0);
-
+    incidents = incidents.filter(
+      (obj) => obj && typeof obj === 'object' && Object.keys(obj).length > 0
+    );
   } catch (error) {
     console.error('getServerSideProps error:', error);
   }
@@ -47,14 +68,25 @@ export default function Home({ incidents = [] }) {
 
         <section className="timeline">
           {incidents.map((it, i) => {
-            const incidentDate = it['Incident date'] !== '-' ? it['Incident date'] : '';
-            const incidentTime = it['incident time'] !== '-' ? it['incident time'] : '';
-            const postDate = it['Post Date'] !== '-' ? it['Post Date'] : '';
-            const postTime = it['Post time'] !== '-' ? it['Post time'] : '';
+            // normalize empty
+            const incidentDateRaw = it['Incident date'] !== '-' ? it['Incident date'] : '';
+            const incidentTimeRaw = it['incident time'] !== '-' ? it['incident time'] : '';
+            const postDateRaw = it['Post Date'] !== '-' ? it['Post Date'] : '';
+            const postTimeRaw = it['Post time'] !== '-' ? it['Post time'] : '';
+            // formatted
+            const incidentDate = formatDate(incidentDateRaw);
+            const incidentTime = formatTime(incidentTimeRaw);
+            const postDate = formatDate(postDateRaw);
+            const postTime = formatTime(postTimeRaw);
+
             const visuals = String(it.Visuals || '').trim().toLowerCase();
             const link = it.Link !== '-' ? it.Link : '';
-            const references = it['References'] && it['References'].startsWith('http') ? it['References'] : '';
-            const title = it['الحدث']?.trim() || it['Incident']?.trim() || 'No title';
+            const references =
+              it['References'] && it['References'].startsWith('http')
+                ? it['References']
+                : '';
+            const title =
+              it['الحدث']?.trim() || it['Incident']?.trim() || 'No title';
 
             const embedUrl = link.includes('drive.google.com')
               ? link.replace('/view?usp=sharing', '/preview')
@@ -64,10 +96,9 @@ export default function Home({ incidents = [] }) {
               <div key={i} className="event">
                 <div className="marker" />
                 <div className="content">
-
-                  {/* Visuals */}
-                  <div className="visual-box">
-                    {visuals === 'yes' && link ? (
+                  {/* Visuals area */}
+                  {visuals === 'yes' && link ? (
+                    <div className="visual-box">
                       <iframe
                         src={embedUrl}
                         title={`Visual material ${i}`}
@@ -77,12 +108,10 @@ export default function Home({ incidents = [] }) {
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
                       />
-                    ) : (
-                      <div className="no-visual">No visual material</div>
-                    )}
-                  </div>
+                    </div>
+                  ) : null}
 
-                  {/* Description */}
+                  {/* Incident title/text */}
                   <div className="incident-box">
                     <div className="incident-text">{title}</div>
                   </div>
@@ -90,12 +119,28 @@ export default function Home({ incidents = [] }) {
                   {/* Meta Info */}
                   <div className="grid">
                     <div>
-                      <p><strong>Posted date:</strong> {postDate}</p>
-                      <p><strong>Post time:</strong> {postTime}</p>
+                      {postDate && (
+                        <p>
+                          <strong>Posted date:</strong> {postDate}
+                        </p>
+                      )}
+                      {postTime && (
+                        <p>
+                          <strong>Post time:</strong> {postTime}
+                        </p>
+                      )}
                     </div>
                     <div>
-                      <p><strong>Incident date:</strong> {incidentDate}</p>
-                      <p><strong>Incident time:</strong> {incidentTime}</p>
+                      {incidentDate && (
+                        <p>
+                          <strong>Incident date:</strong> {incidentDate}
+                        </p>
+                      )}
+                      {incidentTime && (
+                        <p>
+                          <strong>Incident time:</strong> {incidentTime}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -108,7 +153,6 @@ export default function Home({ incidents = [] }) {
                       </a>
                     </p>
                   )}
-
                 </div>
               </div>
             );
@@ -132,7 +176,7 @@ export default function Home({ incidents = [] }) {
           margin: 2rem auto;
           max-width: 800px;
           padding-left: 2rem;
-          border-left: 3px solid red;
+          border-left: 3px solid gray;
         }
         .event {
           position: relative;
@@ -145,7 +189,7 @@ export default function Home({ incidents = [] }) {
           width: 16px;
           height: 16px;
           border-radius: 50%;
-          background: red;
+          background: gray;
         }
         .content {
           padding-left: 1rem;
@@ -156,23 +200,16 @@ export default function Home({ incidents = [] }) {
         }
         .visual-box {
           margin-bottom: 1rem;
-          border: 2px solid red;
+          border: 2px solid gray;
           border-radius: 4px;
           overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 200px;
-        }
-        .no-visual {
-          color: #666;
         }
         .incident-box {
           margin-bottom: 1rem;
           padding: 0.75rem;
-          border: 2px solid red;
+          border: 2px solid gray;
           border-radius: 4px;
-          background: #ffe5e5;
+          background: #f5f5f5;
         }
         .incident-text {
           font-size: 1rem;
@@ -190,7 +227,7 @@ export default function Home({ incidents = [] }) {
           margin-top: 0.5rem;
         }
         .refs a {
-          color: red;
+          color: gray;
           text-decoration: underline;
         }
       `}</style>
