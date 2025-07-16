@@ -474,8 +474,10 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
   }
 
   header {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 100px;
+    right: 738px;
     background: #fff;
     z-index: 100;
     text-align: center;
