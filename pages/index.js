@@ -469,7 +469,7 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
     flex: 1;
     overflow-y: auto;
     overflow-x: visible;
-    padding-top: 6rem;
+    padding-top: 0rem;
     position: relative;
   }
 
@@ -480,21 +480,21 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
     z-index: 100;
     text-align: center;
     padding: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(3, 3, 3, 0.1);
   }
 
   h1 {
-    margin: 0;
+    margin: 1rem;
     font-size: 2.5rem;
-    color: #800020;
+    color:rgb(0, 0, 0);
   }
 
   body {
-    background: #EFEFEF;
+    background:rgb(96, 95, 95);
   }
 
   .search-container {
-    margin-top: 1.5rem;
+    margin-top: 0.1rem;
   }
 
   .search-container input {
@@ -526,7 +526,7 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
   .refresh-link {
     background: none;
     border: none;
-    color: #800020;
+    color:rgb(0, 0, 0);
     cursor: pointer;
     text-decoration: underline;
     font-size: 0.875rem;
@@ -589,8 +589,9 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
 
   .event-container {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
+    flex-direction: row-reverse;
   }
 
   .thumbnail-container {
