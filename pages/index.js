@@ -1,7 +1,7 @@
 // pages/index.js
 
 import Head from 'next/head';
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 
 // your working sheet script URL
 const SHEET_URL =
@@ -56,7 +56,7 @@ export default function Home({ incidents = [] }) {
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [activeIndex, setActiveIndex] = useState(null);
 
-  // compute month/year periods for sidebar
+  // compute available periods (MM/YYYY)
   const periods = useMemo(() => {
     const set = new Set();
     incidents.forEach((it) => {
@@ -77,7 +77,7 @@ export default function Home({ incidents = [] }) {
     });
   }, [incidents]);
 
-  // apply sidebar & search filtering
+  // filter incidents by period & search
   const filtered = useMemo(() => {
     let arr = incidents;
     if (selectedPeriod) {
@@ -101,6 +101,13 @@ export default function Home({ incidents = [] }) {
     });
   }, [incidents, search, selectedPeriod]);
 
+  // open first incident by default
+  useEffect(() => {
+    if (activeIndex === null && filtered.length > 0) {
+      setActiveIndex(0);
+    }
+  }, [filtered]);
+
   const active = activeIndex != null ? filtered[activeIndex] : null;
 
   return (
@@ -114,7 +121,6 @@ export default function Home({ incidents = [] }) {
       </Head>
 
       <div className="container">
-        {/* Sidebar */}
         <aside className="sidebar">
           <button
             className={!selectedPeriod ? 'active' : ''}
@@ -133,7 +139,6 @@ export default function Home({ incidents = [] }) {
           ))}
         </aside>
 
-        {/* Main timeline area */}
         <div className="main-area">
           <header>
             <h1>Indonesian Hospital Timeline</h1>
@@ -149,10 +154,8 @@ export default function Home({ incidents = [] }) {
 
           <section className="timeline">
             {filtered.map((it, i) => {
-              // 1) extract Drive file ID from it.thumbnails
               const match = it.thumbnails?.match(/\/d\/([^/]+)/);
               const fileId = match?.[1];
-              // 2) build direct img URL if we found an ID
               const imgSrc = fileId
                 ? `https://drive.google.com/uc?export=view&id=${fileId}`
                 : it.thumbnails;
@@ -160,285 +163,322 @@ export default function Home({ incidents = [] }) {
               return (
                 <div
                   key={i}
-                  className={`event ${
-                    activeIndex === i ? 'selected' : ''
-                  }`}
+                  className={`event ${activeIndex === i ? 'selected' : ''}`}
                   onClick={() => setActiveIndex(i)}
                 >
-                  {/* render the thumbnail if present */}
                   {it.thumbnails && (
                     <div className="video-thumb">
-                      <img
-                        src={imgSrc}
-                        alt="Video thumbnail"
-                        width="100%"
-                        height="200"
-                      />
+                      <img src={imgSrc} alt="Video thumbnail" width="100%" height="200" />
                       <div className="play-icon">▶</div>
                     </div>
                   )}
 
                   <div className="content">
-                    <div className="incident-text">
+                    {it['Incident date'] && it['Incident date'] !== '-' && (
+                      <span className="date-label">{formatDate(it['Incident date'])}</span>
+                    )}
+                    <div className="separator" />
+                    <div className="incident-text" dir="rtl">
                       {(() => {
-                        const full = (
-                          it['الحدث'] ||
-                          it.Incident ||
-                          'No title'
-                        ).trim();
+                        const full = (it['الحدث'] || it.Incident || 'No title').trim();
                         const words = full.split(/\s+/);
-                        return words.length > 40
-                          ? words.slice(0, 40).join(' ') + '…'
-                          : full;
+                        return words.length > 40 ? words.slice(0, 40).join(' ') + '…' : full;
                       })()}
                     </div>
                   </div>
                 </div>
               );
             })}
-            {!filtered.length && (
-              <p className="empty">No incidents to display.</p>
-            )}
+            {!filtered.length && <p className="empty">No incidents to display.</p>}
           </section>
         </div>
 
-        {/* Detail pane */}
         {active && (
           <aside className="detail-pane">
-            {String(active.Visuals || '').trim().toLowerCase() ===
-              'yes' &&
-              active.Link && (
-                <div className="visual-box">
-                  <iframe
-                    src={
-                      active.Link.includes('drive.google.com')
-                        ? active.Link.replace(
-                            '/view?usp=sharing',
-                            '/preview'
-                          )
-                        : active.Link
-                    }
-                    title="detail-visual"
-                    width="100%"
-                    height="360"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              )}
+            {String(active.Visuals || '').trim().toLowerCase() === 'yes' && active.Link && (
+              <div className="visual-box">
+                <iframe
+                  src={
+                    active.Link.includes('drive.google.com')
+                      ? active.Link.replace('/view?usp=sharing', '/preview')
+                      : active.Link
+                  }
+                  title="detail-visual"
+                  width="100%"
+                  height="360"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            )}
 
-            <div className="content detail-content">
-              <p dir="rtl">{active['الحدث'] || active.Incident}</p>
+            <div className="content detail-content" dir="rtl">
+              <p>{active['الحدث'] || active.Incident}</p>
+
               <div className="meta-details">
                 {formatDate(active['Post Date']) && (
                   <div className="meta-row">
                     <span className="meta-label">Posted date:</span>
-                    <span className="meta-value">
-                      {formatDate(active['Post Date'])}
-                    </span>
+                    <span className="meta-value">{formatDate(active['Post Date'])}</span>
                   </div>
                 )}
                 {formatTime(active['Post time']) && (
                   <div className="meta-row">
                     <span className="meta-label">Post time:</span>
-                    <span className="meta-value">
-                      {formatTime(active['Post time'])}
-                    </span>
+                    <span className="meta-value">{formatTime(active['Post time'])}</span>
                   </div>
                 )}
                 {formatDate(active['Incident date']) && (
                   <div className="meta-row">
                     <span className="meta-label">Incident date:</span>
-                    <span className="meta-value">
-                      {formatDate(active['Incident date'])}
-                    </span>
+                    <span className="meta-value">{formatDate(active['Incident date'])}</span>
                   </div>
                 )}
                 {formatTime(active['incident time']) && (
                   <div className="meta-row">
                     <span className="meta-label">Incident time:</span>
+                    <span className="meta-value">{formatTime(active['incident time'])}</span>
+                  </div>
+                )}
+                {active['Source Type'] && active['Source Type'] !== '-' && (
+                  <div className="meta-row">
+                    <span className="meta-label">Source Type:</span>
+                    <span className="meta-value">{active['Source Type']}</span>
+                  </div>
+                )}
+                {active.References && active.References.startsWith('http') && (
+                  <div className="meta-row">
+                    <span className="meta-label">References:</span>
                     <span className="meta-value">
-                      {formatTime(active['incident time'])}
+                      <a href={active.References} target="_blank" rel="noopener noreferrer">
+                        View
+                      </a>
                     </span>
                   </div>
                 )}
-                {active['Source Type'] &&
-                  active['Source Type'] !== '-' && (
-                    <div className="meta-row">
-                      <span className="meta-label">Source Type:</span>
-                      <span className="meta-value">
-                        {active['Source Type']}
-                      </span>
-                    </div>
-                  )}
-                {active.References &&
-                  active.References.startsWith('http') && (
-                    <div className="meta-row">
-                      <span className="meta-label">References:</span>
-                      <span className="meta-value">
-                        <a
-                          href={active.References}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          View
-                        </a>
-                      </span>
-                    </div>
-                  )}
               </div>
+
+              {formatDate(active['Source Date']) && (
+                <div className="meta-row">
+                  <span className="meta-label">Source Date:</span>
+                  <span className="meta-value">{formatDate(active['Source Date'])}</span>
+                </div>
+              )}
             </div>
           </aside>
         )}
       </div>
 
       <style jsx>{`
-        /* layout */
-        .container {
-          display: flex;
-          height: 100vh;
-          overflow: hidden;
-        }
-        .sidebar {
-          width: 160px;
-          background: #f0f0f0;
-          overflow-y: auto;
-          padding: 1rem 0;
-        }
-        .sidebar button {
-          display: block;
-          width: 100%;
-          padding: 0.5rem 1rem;
-          border: none;
-          background: none;
-          text-align: left;
-          cursor: pointer;
-        }
-        .sidebar button.active,
-        .sidebar button:hover {
-          background: #ddd;
-        }
+  .container {
+    display: flex;
+    height: 100vh;
+    overflow-x: visible;
+    overflow-y: hidden;
+  }
 
-        .main-area {
-          flex: 1;
-          overflow-y: auto;
-        }
-        header {
-          text-align: center;
-          padding: 1rem 0;
-        }
-        h1 {
-          margin: 0;
-          font-size: 1.75rem;
-        }
-        .search-container {
-          margin-top: 0.5rem;
-        }
-        .search-container input {
-          width: 60%;
-          max-width: 400px;
-          padding: 0.5rem;
-          border: 1px solid #ccc;
-          border-radius: 4px;
-        }
+  .sidebar {
+    width: 90px;
+    background: #f0f0f0;
+    overflow-y: auto;
+    padding: 1rem 0;
+  }
 
-        /* timeline center-left */
-        .timeline {
-          position: relative;
-          max-width: 600px;
-          margin: 2rem auto;
-          padding-left: 2rem;
-          border-left: 3px solid gray;
-        }
-        .event {
-          position: relative;
-          margin-bottom: 1rem;
-          cursor: pointer;
-        }
+  .sidebar button {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
 
-        /* thumbnail styling */
-        .video-thumb {
-          position: relative;
-          margin-bottom: 0.5rem;
-        }
-        .video-thumb img {
-          width: 100%;
-          border-radius: 4px;
-        }
-        .play-icon {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 2rem;
-          color: rgba(255, 255, 255, 0.8);
-        }
+  .sidebar button.active,
+  .sidebar button:hover {
+    background: #ddd;
+  }
 
-        /* content box */
-        .content {
-          padding-left: 1rem;
-          background: #fff;
-          border-radius: 6px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-          padding: 1rem;
-          font-size: 0.875rem;
-          line-height: 1.4;
-          font-weight: 300;
-        }
-        .incident-text {
-          font-weight: bold;
-        }
-        .empty {
-          text-align: center;
-          color: #666;
-        }
+  .main-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: visible;
+    padding-top: 6rem; /* يفترض أن ارتفاع الهيدر مع البادينغ يصل إلى حوالي 6rem */
+  }
 
-        /* detail pane */
-        .detail-pane {
-          width: 40%;
-          background: #fafafa;
-          overflow-y: auto;
-          padding: 1rem;
-          border-left: 1px solid #ddd;
-        }
-        .detail-content {
-          margin-top: 1rem;
-        }
-        .visual-box {
-          margin-bottom: 1rem;
-          border: 2px solid gray;
-          border-radius: 4px;
-          overflow: hidden;
-        }
-        a {
-          color: gray;
-          text-decoration: underline;
-        }
+  header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 100;
+    text-align: center;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
 
-        /* meta-details styling */
-        .meta-details {
-          border-top: 1px solid #ddd;
-          margin: 1rem 0;
-          padding-top: 1rem;
-        }
-        .meta-row {
-          display: flex;
-          justify-content: space-between;
-          padding: 0.5rem 0;
-          border-bottom: 1px solid #eee;
-        }
-        .meta-row:last-child {
-          border-bottom: none;
-        }
-        .meta-label {
-          font-weight: bold;
-          color: #555;
-        }
-        .meta-value {
-          color: #333;
-        }
-      `}</style>
+  h1 {
+    margin: 0;
+    font-size: 2.5rem;
+    color: #800020;
+  }
+
+  body {
+    background: #EFEFEF;
+  }
+
+  .search-container {
+    margin-top: 1.5rem;
+  }
+
+  .search-container input {
+    width: 60%;
+    max-width: 800px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .timeline {
+    position: relative;
+    overflow-x: visible;
+    max-width: 600px;
+    margin: 1rem auto;
+    padding-left: 4rem;
+  }
+
+  .event {
+    width: 100%;
+    margin-top: 2rem;
+    max-width: 550px;
+    box-sizing: border-box;
+  }
+
+  .video-thumb {
+    position: relative;
+    margin: 0 0 1rem 0;
+  }
+
+  .video-thumb img {
+    width: 100%;
+    max-width: 100px;
+    border-radius: 4px;
+  }
+
+  .play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .content {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    font-weight: 300;
+    flex: 1;
+  }
+
+  .date-label {
+    background: #e0e0e0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .separator {
+    width: 1px;
+    height: 1.5rem;
+    background: #ccc;
+    margin: 0 1rem;
+  }
+
+  .incident-text {
+    font-weight: bold;
+    flex: 1;
+    text-align: right;
+    direction: rtl;
+  }
+
+  .empty {
+    text-align: center;
+    color: #666;
+  }
+
+  .detail-pane {
+    width: 37%;
+    background: #fafafa;
+    overflow-y: auto;
+    padding: 1rem;
+    border-left: 1px solid #ddd;
+  }
+
+  .detail-content {
+    margin-top: 1rem;
+    display: block;
+    direction: rtl;
+  }
+
+  .visual-box {
+    margin-bottom: 1rem;
+    border: 2px solid gray;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  a {
+    color: gray;
+    text-decoration: underline;
+  }
+
+  /* عرض الميتا من اليسار لليمين */
+  .detail-content .meta-details {
+    direction: ltr;
+    text-align: left;
+  }
+
+  .meta-details {
+    border-top: 1px solid #ddd;
+    margin: 1rem 0;
+    padding-top: 1rem;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .meta-row:last-child {
+    border-bottom: none;
+  }
+
+  .meta-label {
+    font-weight: bold;
+    color: #555;
+  }
+
+  .meta-value {
+    color: #333;
+  }
+
+  .event.selected .content {
+    border: 3px solid #800020;
+  }
+`}</style>
+
     </>
   );
 }
