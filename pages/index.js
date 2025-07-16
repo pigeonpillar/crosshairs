@@ -291,45 +291,15 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
                 console.log('Full incident data:', it);
               }
               
-              // Check for thumbnails with different case variations
-              const thumbnailUrl = it.thumbnails || it.Thumbnails || it.thumbnail || it.Thumbnail;
+              // Get the ID from the sheet data
+              const imageId = it.ID || it.id || it.Id;
               
-              // Debug: Log thumbnail URL
-              console.log(`Incident ${i} thumbnail URL:`, thumbnailUrl);
-              
-              // Extract Google Drive file ID from various URL formats
+              // Create the local image path
               let imgSrc = null;
-              if (thumbnailUrl && thumbnailUrl !== '-' && thumbnailUrl !== '') {
-                // Check if it's already a direct view URL
-                if (thumbnailUrl.includes('drive.google.com/uc?export=view')) {
-                  imgSrc = thumbnailUrl;
-                } else if (thumbnailUrl.includes('drive.google.com')) {
-                  // Handle other Google Drive URL formats
-                  const patterns = [
-                    /\/d\/([^/]+)/,  // /d/FILE_ID format
-                    /id=([^&]+)/,    // ?id=FILE_ID format
-                    /\/file\/d\/([^/]+)/, // /file/d/FILE_ID format
-                  ];
-                  
-                  let fileId = null;
-                  for (const pattern of patterns) {
-                    const match = thumbnailUrl.match(pattern);
-                    if (match) {
-                      fileId = match[1];
-                      break;
-                    }
-                  }
-                  
-                  if (fileId) {
-                    // Convert to direct image URL
-                    imgSrc = `https://drive.google.com/uc?export=view&id=${fileId}`;
-                  }
-                } else if (thumbnailUrl.startsWith('http')) {
-                  // Use as-is if it's already a direct URL
-                  imgSrc = thumbnailUrl;
-                }
-                
-                console.log(`Incident ${i} processed imgSrc:`, imgSrc);
+              if (imageId && imageId !== '-' && imageId !== '') {
+                // Use the ID to construct the path to the local image
+                imgSrc = `/${imageId}.png`;
+                console.log(`Incident ${i} using local image: ${imgSrc}`);
               }
 
               return (
@@ -346,10 +316,11 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
                           alt="Incident thumbnail"
                           onError={(e) => {
                             console.error('Failed to load thumbnail:', imgSrc);
+                            // Hide the thumbnail container if image fails to load
                             e.target.parentElement.style.display = 'none';
                           }}
                           onLoad={() => {
-                            console.log('Thumbnail loaded successfully');
+                            console.log('Thumbnail loaded successfully:', imgSrc);
                           }}
                         />
                         <div className="play-icon">▶</div>
@@ -770,5 +741,3 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
     </>
   );
 }
-
-
