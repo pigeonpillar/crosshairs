@@ -469,7 +469,7 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
     flex: 1;
     overflow-y: auto;
     overflow-x: visible;
-    padding-top: 6rem;
+    padding-top: 9rem;
     position: relative;
   }
 
