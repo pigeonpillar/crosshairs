@@ -28,9 +28,13 @@ function formatTime(iso) {
 
 export async function getServerSideProps() {
   let incidents = [];
+  let error = null;
+  
   try {
     const res = await fetch(SHEET_URL);
-    if (!res.ok) throw new Error(`Sheet fetch failed: ${res.status}`);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch data: ${res.status} ${res.statusText}`);
+    }
     const raw = await res.json();
     const values = Object.values(raw);
     if (
@@ -46,15 +50,47 @@ export async function getServerSideProps() {
     }
     incidents = incidents.filter((obj) => obj && Object.keys(obj).length > 0);
   } catch (err) {
-    console.error(err);
+    console.error('Error fetching data:', err);
+    error = err.message || 'Failed to fetch incident data';
   }
-  return { props: { incidents } };
+  
+  return { 
+    props: { 
+      incidents,
+      error,
+      lastUpdated: new Date().toISOString()
+    } 
+  };
 }
 
-export default function Home({ incidents = [] }) {
+export default function Home({ incidents = [], error: initialError, lastUpdated }) {
   const [search, setSearch] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('');
   const [activeIndex, setActiveIndex] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(initialError);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Debug: Log the first incident to see its structure
+  useEffect(() => {
+    if (incidents.length > 0) {
+      console.log('First incident data:', incidents[0]);
+      console.log('All keys in first incident:', Object.keys(incidents[0]));
+    }
+  }, [incidents]);
+
+  // Function to refresh data
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    setError(null);
+    try {
+      await window.location.reload();
+    } catch (err) {
+      setError('Failed to refresh data');
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   // compute available periods (MM/YYYY)
   const periods = useMemo(() => {
@@ -79,6 +115,8 @@ export default function Home({ incidents = [] }) {
 
   // filter incidents by period & search
   const filtered = useMemo(() => {
+    setIsLoading(true);
+    
     let arr = incidents;
     if (selectedPeriod) {
       arr = arr.filter((it) => {
@@ -90,8 +128,12 @@ export default function Home({ incidents = [] }) {
       });
     }
     const q = search.trim().toLowerCase();
-    if (!q) return arr;
-    return arr.filter((it) => {
+    if (!q) {
+      setIsLoading(false);
+      return arr;
+    }
+    
+    const result = arr.filter((it) => {
       const title = (it['الحدث'] || it.Incident || '').toLowerCase();
       const pd = it['Post Date']?.toLowerCase() || '';
       const pt = it['Post time']?.toLowerCase() || '';
@@ -99,6 +141,9 @@ export default function Home({ incidents = [] }) {
       const itime = it['incident time']?.toLowerCase() || '';
       return [title, pd, pt, id, itime].some((f) => f.includes(q));
     });
+    
+    setIsLoading(false);
+    return result;
   }, [incidents, search, selectedPeriod]);
 
   // open first incident by default
@@ -109,6 +154,72 @@ export default function Home({ incidents = [] }) {
   }, [filtered]);
 
   const active = activeIndex != null ? filtered[activeIndex] : null;
+
+  // Show error state
+  if (error && !incidents.length) {
+    return (
+      <>
+        <Head>
+          <title>crosshairs – Indonesian Hospital Timeline</title>
+          <meta
+            name="description"
+            content="Vertical timeline of incidents from Google Sheets"
+          />
+        </Head>
+        <div className="error-container">
+          <div className="error-content">
+            <h1>Unable to Load Timeline</h1>
+            <p>{error}</p>
+            <button onClick={refreshData} className="retry-button">
+              {isRefreshing ? 'Refreshing...' : 'Try Again'}
+            </button>
+          </div>
+        </div>
+        <style jsx>{`
+          .error-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #f5f5f5;
+          }
+          .error-content {
+            text-align: center;
+            padding: 2rem;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+          }
+          .error-content h1 {
+            color: #800020;
+            margin-bottom: 1rem;
+          }
+          .error-content p {
+            color: #666;
+            margin-bottom: 1.5rem;
+          }
+          .retry-button {
+            background: #800020;
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.2s;
+          }
+          .retry-button:hover:not(:disabled) {
+            background: #600018;
+          }
+          .retry-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        `}</style>
+      </>
+    );
+  }
 
   return (
     <>
@@ -142,6 +253,14 @@ export default function Home({ incidents = [] }) {
         <div className="main-area">
           <header>
             <h1>Indonesian Hospital Timeline</h1>
+            {error && (
+              <div className="error-banner">
+                <span>{error}</span>
+                <button onClick={refreshData} className="refresh-link">
+                  Refresh
+                </button>
+              </div>
+            )}
             <div className="search-container">
               <input
                 type="text"
@@ -149,16 +268,69 @@ export default function Home({ incidents = [] }) {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
+              {lastUpdated && (
+                <div className="last-updated">
+                  Last updated: {new Date(lastUpdated).toLocaleString()}
+                </div>
+              )}
             </div>
           </header>
 
           <section className="timeline">
-            {filtered.map((it, i) => {
-              const match = it.thumbnails?.match(/\/d\/([^/]+)/);
-              const fileId = match?.[1];
-              const imgSrc = fileId
-                ? `https://drive.google.com/uc?export=view&id=${fileId}`
-                : it.thumbnails;
+            {isLoading && (
+              <div className="loading-overlay">
+                <div className="loader"></div>
+                <p>Loading incidents...</p>
+              </div>
+            )}
+            
+            {!isLoading && filtered.map((it, i) => {
+              // Debug: Log all available fields for first item
+              if (i === 0) {
+                console.log('Incident fields:', Object.keys(it));
+                console.log('Full incident data:', it);
+              }
+              
+              // Check for thumbnails with different case variations
+              const thumbnailUrl = it.thumbnails || it.Thumbnails || it.thumbnail || it.Thumbnail;
+              
+              // Debug: Log thumbnail URL
+              console.log(`Incident ${i} thumbnail URL:`, thumbnailUrl);
+              
+              // Extract Google Drive file ID from various URL formats
+              let imgSrc = null;
+              if (thumbnailUrl && thumbnailUrl !== '-' && thumbnailUrl !== '') {
+                // Check if it's already a direct view URL
+                if (thumbnailUrl.includes('drive.google.com/uc?export=view')) {
+                  imgSrc = thumbnailUrl;
+                } else if (thumbnailUrl.includes('drive.google.com')) {
+                  // Handle other Google Drive URL formats
+                  const patterns = [
+                    /\/d\/([^/]+)/,  // /d/FILE_ID format
+                    /id=([^&]+)/,    // ?id=FILE_ID format
+                    /\/file\/d\/([^/]+)/, // /file/d/FILE_ID format
+                  ];
+                  
+                  let fileId = null;
+                  for (const pattern of patterns) {
+                    const match = thumbnailUrl.match(pattern);
+                    if (match) {
+                      fileId = match[1];
+                      break;
+                    }
+                  }
+                  
+                  if (fileId) {
+                    // Convert to direct image URL
+                    imgSrc = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                  }
+                } else if (thumbnailUrl.startsWith('http')) {
+                  // Use as-is if it's already a direct URL
+                  imgSrc = thumbnailUrl;
+                }
+                
+                console.log(`Incident ${i} processed imgSrc:`, imgSrc);
+              }
 
               return (
                 <div
@@ -166,30 +338,48 @@ export default function Home({ incidents = [] }) {
                   className={`event ${activeIndex === i ? 'selected' : ''}`}
                   onClick={() => setActiveIndex(i)}
                 >
-                  {it.thumbnails && (
-                    <div className="video-thumb">
-                      <img src={imgSrc} alt="Video thumbnail" width="100%" height="200" />
-                      <div className="play-icon">▶</div>
-                    </div>
-                  )}
-
-                  <div className="content">
-                    {it['Incident date'] && it['Incident date'] !== '-' && (
-                      <span className="date-label">{formatDate(it['Incident date'])}</span>
+                  <div className="event-container">
+                    {imgSrc && (
+                      <div className="thumbnail-container">
+                        <img 
+                          src={imgSrc} 
+                          alt="Incident thumbnail"
+                          onError={(e) => {
+                            console.error('Failed to load thumbnail:', imgSrc);
+                            e.target.parentElement.style.display = 'none';
+                          }}
+                          onLoad={() => {
+                            console.log('Thumbnail loaded successfully');
+                          }}
+                        />
+                        <div className="play-icon">▶</div>
+                      </div>
                     )}
-                    <div className="separator" />
-                    <div className="incident-text" dir="rtl">
-                      {(() => {
-                        const full = (it['الحدث'] || it.Incident || 'No title').trim();
-                        const words = full.split(/\s+/);
-                        return words.length > 40 ? words.slice(0, 40).join(' ') + '…' : full;
-                      })()}
+                    
+                    <div className={`content ${imgSrc ? 'with-thumbnail' : ''}`}>
+                      {it['Incident date'] && it['Incident date'] !== '-' && (
+                        <span className="date-label">{formatDate(it['Incident date'])}</span>
+                      )}
+                      <div className="separator" />
+                      <div className="incident-text" dir="rtl">
+                        {(() => {
+                          const full = (it['الحدث'] || it.Incident || 'No title').trim();
+                          const words = full.split(/\s+/);
+                          return words.length > 40 ? words.slice(0, 40).join(' ') + '…' : full;
+                        })()}
+                      </div>
                     </div>
                   </div>
                 </div>
               );
             })}
-            {!filtered.length && <p className="empty">No incidents to display.</p>}
+            {!isLoading && !filtered.length && (
+              <p className="empty">
+                {search || selectedPeriod 
+                  ? 'No incidents found matching your filters.' 
+                  : 'No incidents to display.'}
+              </p>
+            )}
           </section>
         </div>
 
@@ -209,6 +399,10 @@ export default function Home({ incidents = [] }) {
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<p style="padding: 1rem; text-align: center; color: #666;">Unable to load visual content</p>';
+                  }}
                 />
               </div>
             )}
@@ -304,7 +498,8 @@ export default function Home({ incidents = [] }) {
     flex: 1;
     overflow-y: auto;
     overflow-x: visible;
-    padding-top: 6rem; /* يفترض أن ارتفاع الهيدر مع البادينغ يصل إلى حوالي 6rem */
+    padding-top: 6rem;
+    position: relative;
   }
 
   header {
@@ -339,12 +534,73 @@ export default function Home({ incidents = [] }) {
     border-radius: 4px;
   }
 
+  .last-updated {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+
+  .error-banner {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin: 0.5rem auto;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .refresh-link {
+    background: none;
+    border: none;
+    color: #800020;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.875rem;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #800020;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-overlay p {
+    margin-top: 1rem;
+    color: #666;
+  }
+
   .timeline {
     position: relative;
     overflow-x: visible;
     max-width: 600px;
     margin: 1rem auto;
     padding-left: 4rem;
+    min-height: 400px;
   }
 
   .event {
@@ -352,17 +608,35 @@ export default function Home({ incidents = [] }) {
     margin-top: 2rem;
     max-width: 550px;
     box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.2s;
   }
 
-  .video-thumb {
+  .event:hover {
+    transform: translateX(-5px);
+  }
+
+  .event-container {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .thumbnail-container {
     position: relative;
-    margin: 0 0 1rem 0;
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
-  .video-thumb img {
+  .thumbnail-container img {
     width: 100%;
-    max-width: 100px;
-    border-radius: 4px;
+    height: 100%;
+    object-fit: cover;
   }
 
   .play-icon {
@@ -370,8 +644,16 @@ export default function Home({ incidents = [] }) {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 2rem;
-    color: rgba(255, 255, 255, 0.8);
+    font-size: 1.5rem;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.6);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
   }
 
   .content {
@@ -385,6 +667,10 @@ export default function Home({ incidents = [] }) {
     font-size: 0.875rem;
     line-height: 1.4;
     font-weight: 300;
+    flex: 1;
+  }
+
+  .content.with-thumbnail {
     flex: 1;
   }
 
@@ -414,6 +700,7 @@ export default function Home({ incidents = [] }) {
   .empty {
     text-align: center;
     color: #666;
+    padding: 2rem;
   }
 
   .detail-pane {
@@ -435,6 +722,8 @@ export default function Home({ incidents = [] }) {
     border: 2px solid gray;
     border-radius: 4px;
     overflow: hidden;
+    min-height: 200px;
+    background: #f5f5f5;
   }
 
   a {
@@ -442,7 +731,6 @@ export default function Home({ incidents = [] }) {
     text-decoration: underline;
   }
 
-  /* عرض الميتا من اليسار لليمين */
   .detail-content .meta-details {
     direction: ltr;
     text-align: left;
@@ -474,7 +762,7 @@ export default function Home({ incidents = [] }) {
     color: #333;
   }
 
-  .event.selected .content {
+  .event.selected .event-container .content {
     border: 3px solid #800020;
   }
 `}</style>
