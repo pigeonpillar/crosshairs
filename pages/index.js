@@ -770,3 +770,5 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
     </>
   );
 }
+
+
