@@ -372,438 +372,466 @@ export default function Home({ incidents = [], error: initialError, lastUpdated 
 
 
        {active && (
-         <aside className="detail-pane">
-           {String(active.Visuals || '').trim().toLowerCase() === 'yes' && active.Link && (
-             <div className="visual-box">
-               <iframe
-                 src={
-                   active.Link.includes('drive.google.com')
-                     ? active.Link.replace('/view?usp=sharing', '/preview')
-                     : active.Link
-                 }
-                 title="detail-visual"
-                 width="100%"
-                 height="360"
-                 frameBorder="0"
-                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                 allowFullScreen
-                 onError={(e) => {
-                   e.target.style.display = 'none';
-                   e.target.parentElement.innerHTML = '<p style="padding: 1rem; text-align: center; color: #666;">Unable to load visual content</p>';
-                 }}
-               />
-             </div>
-           )}
-
-
-           <div className="content detail-content" dir="rtl">
-             <p>{active['الحدث'] || active.Incident}</p>
-
-
-             <div className="meta-details">
-               {formatDate(active['Post Date']) && (
-                 <div className="meta-row">
-                   <span className="meta-label">Posted date:</span>
-                   <span className="meta-value">{formatDate(active['Post Date'])}</span>
-                 </div>
-               )}
-               {formatTime(active['Post time']) && (
-                 <div className="meta-row">
-                   <span className="meta-label">Post time:</span>
-                   <span className="meta-value">{formatTime(active['Post time'])}</span>
-                 </div>
-               )}
-               {formatDate(active['Incident date']) && (
-                 <div className="meta-row">
-                   <span className="meta-label">Incident date:</span>
-                   <span className="meta-value">{formatDate(active['Incident date'])}</span>
-                 </div>
-               )}
-               {formatTime(active['incident time']) && (
-                 <div className="meta-row">
-                   <span className="meta-label">Incident time:</span>
-                   <span className="meta-value">{formatTime(active['incident time'])}</span>
-                 </div>
-               )}
-               {active['Source Type'] && active['Source Type'] !== '-' && (
-                 <div className="meta-row">
-                   <span className="meta-label">Source Type:</span>
-                   <span className="meta-value">{active['Source Type']}</span>
-                 </div>
-               )}
-               {active.References && active.References.startsWith('http') && (
-                 <div className="meta-row">
-                   <span className="meta-label">References:</span>
-                   <span className="meta-value">
-                     <a href={active.References} target="_blank" rel="noopener noreferrer">
-                       View
-                     </a>
-                   </span>
-                 </div>
-               )}
-             </div>
-
-
-             {formatDate(active['Source Date']) && (
-               <div className="meta-row">
-                 <span className="meta-label">Source Date:</span>
-                 <span className="meta-value">{formatDate(active['Source Date'])}</span>
-               </div>
-             )}
-           </div>
-         </aside>
-       )}
-     </div>
-
-
-     <style jsx>{`
- .container {
-   display: flex;
-   height: 100vh;
-   overflow-x: visible;
-   overflow-y: hidden;
- }
-
-
- .sidebar {
-   width: 90px;
-   background: #f0f0f0;
-   overflow-y: auto;
-   padding: 1rem 0;
- }
-
-
- .sidebar button {
-   display: block;
-   width: 100%;
-   padding: 0.5rem 1rem;
-   border: none;
-   background: none;
-   text-align: left;
-   cursor: pointer;
- }
-
-
- .sidebar button.active,
- .sidebar button:hover {
-   background: #ddd;
- }
-
-
- .main-area {
-   flex: 1;
-   overflow-y: auto;
-   overflow-x: visible;
-   padding-top: 0rem;
-   position: relative;
- }
-
-
- header {
-   position: sticky;
-   top: 0;
-   background: #fff;
-   z-index: 100;
-   text-align: center;
-   padding: 1rem;
-   box-shadow: 0 2px 4px rgba(3, 3, 3, 0.1);
- }
-
-
- h1 {
-   margin: 1rem;
-   font-size: 2.5rem;
-   color:rgb(0, 0, 0);
- }
-
-
- body {
-   background:rgb(96, 95, 95);
- }
-
-
- .search-container {
-   margin-top: 0.1rem;
- }
-
-
- .search-container input {
-   width: 60%;
-   max-width: 800px;
-   padding: 0.5rem;
-   border: 1px solid #ccc;
-   border-radius: 4px;
- }
-
-
- .last-updated {
-   font-size: 0.75rem;
-   color: #666;
-   margin-top: 0.5rem;
- }
-
-
- .error-banner {
-   background: #fff3cd;
-   color: #856404;
-   padding: 0.5rem 1rem;
-   border-radius: 4px;
-   margin: 0.5rem auto;
-   max-width: 600px;
-   display: flex;
-   justify-content: space-between;
-   align-items: center;
- }
-
-
- .refresh-link {
-   background: none;
-   border: none;
-   color:rgb(0, 0, 0);
-   cursor: pointer;
-   text-decoration: underline;
-   font-size: 0.875rem;
- }
-
-
- .loading-overlay {
-   position: absolute;
-   top: 0;
-   left: 0;
-   right: 0;
-   bottom: 0;
-   background: rgba(255, 255, 255, 0.9);
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   z-index: 50;
- }
-
-
- .loader {
-   border: 3px solid #f3f3f3;
-   border-top: 3px solid #800020;
-   border-radius: 50%;
-   width: 40px;
-   height: 40px;
-   animation: spin 1s linear infinite;
- }
-
-
- @keyframes spin {
-   0% { transform: rotate(0deg); }
-   100% { transform: rotate(360deg); }
- }
-
-
- .loading-overlay p {
-   margin-top: 1rem;
-   color: #666;
- }
-
-
- .timeline {
-   position: relative;
-   overflow-x: visible;
-   max-width: 600px;
-   margin: 1rem auto;
-   padding-left: 4rem;
-   min-height: 400px;
- }
-
-
- .event {
-   width: 100%;
-   margin-top: 2rem;
-   max-width: 550px;
-   box-sizing: border-box;
-   cursor: pointer;
-   transition: transform 0.2s;
- }
-
-
- .event:hover {
-   transform: translateX(-5px);
- }
-
-
- .event-container {
-   display: flex;
-   align-items: center;
-   gap: 1rem;
-   flex-direction: row-reverse;
- }
-
-
- .thumbnail-container {
-   position: relative;
-   flex-shrink: 0;
-   width: 120px;
-   height: 80px;
-   background: #f0f0f0;
-   border-radius: 6px;
-   overflow: hidden;
-   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
- }
-
-
- .thumbnail-container img {
-   width: 100%;
-   height: 100%;
-   object-fit: cover;
- }
-
-
- .play-icon {
-   position: absolute;
-   top: 50%;
-   left: 50%;
-   transform: translate(-50%, -50%);
-   font-size: 1.5rem;
-   color: rgba(255, 255, 255, 0.9);
-   background: rgba(0, 0, 0, 0.6);
-   width: 40px;
-   height: 40px;
-   border-radius: 50%;
-   display: flex;
-   align-items: center;
-   justify-content: center;
-   pointer-events: none;
- }
-
-
- .content {
-   display: flex;
-   flex-direction: row-reverse;
-   align-items: center;
-   background: #fff;
-   padding: 1rem;
-   border-radius: 6px;
-   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-   font-size: 0.875rem;
-   line-height: 1.4;
-   font-weight: 300;
-   flex: 1;
- }
-
-
- .content.with-thumbnail {
-   flex: 1;
- }
-
-
- .date-label {
-   background: #e0e0e0;
-   padding: 0.25rem 0.5rem;
-   border-radius: 4px;
-   font-size: 0.875rem;
-   font-weight: bold;
-   color: #333;
- }
-
-
- .separator {
-   width: 1px;
-   height: 1.5rem;
-   background: #ccc;
-   margin: 0 1rem;
- }
-
-
- .incident-text {
-   font-weight: bold;
-   flex: 1;
-   text-align: right;
-   direction: rtl;
- }
-
-
- .empty {
-   text-align: center;
-   color: #666;
-   padding: 2rem;
- }
-
-
- .detail-pane {
-   width: 37%;
-   background: #fafafa;
-   overflow-y: auto;
-   padding: 1rem;
-   border-left: 1px solid #ddd;
- }
-
-
- .detail-content {
-   margin-top: 1rem;
-   display: block;
-   direction: rtl;
- }
-
-
- .visual-box {
-   margin-bottom: 1rem;
-   border: 2px solid gray;
-   border-radius: 4px;
-   overflow: hidden;
-   min-height: 200px;
-   background: #f5f5f5;
- }
-
-
- a {
-   color: gray;
-   text-decoration: underline;
- }
-
-
- .detail-content .meta-details {
-   direction: ltr;
-   text-align: left;
- }
-
-
- .meta-details {
-   border-top: 1px solid #ddd;
-   margin: 1rem 0;
-   padding-top: 1rem;
- }
-
-
- .meta-row {
-   display: flex;
-   justify-content: space-between;
-   padding: 0.5rem 0;
-   border-bottom: 1px solid #eee;
- }
-
-
- .meta-row:last-child {
-   border-bottom: none;
- }
-
-
- .meta-label {
-   font-weight: bold;
-   color: #555;
- }
-
-
- .meta-value {
-   color: #333;
- }
-
-
- .event.selected .event-container .content {
-   border: 3px solid #800020;
- }
-`}</style>
-
-
-   </>
- );
+      <aside
+        className={
+          'detail-pane ' +
+          String(active['Source Type'] || '')
+            .trim()
+            .toLowerCase()
+            .replace(/\s+/g, '-')
+        }
+      >
+        {/* 1) Optional visual box */}
+        {String(active.Visuals || '')
+          .trim()
+          .toLowerCase() === 'yes' &&
+          active.Link && (
+            <div className="visual-box">
+              <iframe
+                src={
+                  active.Link.includes('drive.google.com')
+                    ? active.Link.replace('/view?usp=sharing', '/preview')
+                    : active.Link
+                }
+                title="detail-visual"
+                width="100%"
+                height="360"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.parentElement.innerHTML =
+                    '<p style="padding:1rem;text-align:center;color:#666;">Unable to load visual content</p>';
+                }}
+              />
+            </div>
+        )}
+
+        {/* 2) The rest of the detail pane */}
+        <div className="content detail-content" dir="rtl">
+        <div className="content detail-content" dir="rtl">
+  {String(active['Source Type'] || '').toLowerCase() === 'chat' ? (
+    <div className="chat-log">
+      { (active.Incident || '').split('\n').map((line, i) => {
+          // extract timestamp in brackets, if any:
+          const tsMatch = line.match(/^\[.*?\]/);
+          const ts = tsMatch ? tsMatch[0] : '';
+          const msg = ts ? line.slice(ts.length).trim() : line;
+          return (
+            <div key={i} className="chat-line">
+              {ts && <span className="timestamp">{ts}</span>}
+              <span className="message">{msg}</span>
+            </div>
+          );
+      }) }
+    </div>
+  ) : (
+    <p>{active['الحدث'] || active.Incident}</p>
+  )}
+  …
+</div>
+
+
+          <div className="meta-details">
+            {formatDate(active['Post Date']) && (
+              <div className="meta-row">
+                <span className="meta-label">Posted date:</span>
+                <span className="meta-value">{formatDate(active['Post Date'])}</span>
+              </div>
+            )}
+            {formatTime(active['Post time']) && (
+              <div className="meta-row">
+                <span className="meta-label">Post time:</span>
+                <span className="meta-value">{formatTime(active['Post time'])}</span>
+              </div>
+            )}
+            {formatDate(active['Incident date']) && (
+              <div className="meta-row">
+                <span className="meta-label">Incident date:</span>
+                <span className="meta-value">{formatDate(active['Incident date'])}</span>
+              </div>
+            )}
+            {formatTime(active['incident time']) && (
+              <div className="meta-row">
+                <span className="meta-label">Incident time:</span>
+                <span className="meta-value">{formatTime(active['incident time'])}</span>
+              </div>
+            )}
+            {active['Source Type'] && (
+              <div className="meta-row">
+                <span className="meta-label">Source Type:</span>
+                <span className="meta-value">{active['Source Type']}</span>
+              </div>
+            )}
+            {active.References?.startsWith('http') && (
+              <div className="meta-row">
+                <span className="meta-label">References:</span>
+                <span className="meta-value">
+                  <a href={active.References} target="_blank" rel="noopener noreferrer">
+                    View
+                  </a>
+                </span>
+              </div>
+            )}
+          </div>
+
+          {formatDate(active['Source Date']) && (
+            <div className="meta-row">
+              <span className="meta-label">Source Date:</span>
+              <span className="meta-value">{formatDate(active['Source Date'])}</span>
+            </div>
+          )}
+        </div>
+      </aside>
+    )}
+
+  </div> {/* ← closes <div className="container"> */}
+
+  {/* Scoped styles */}
+   {/* Scoped styles */}
+  {/* Scoped styles */}
+<style jsx>{`
+  .container {
+    display: flex;
+    height: 100vh;
+    overflow-x: visible;
+    overflow-y: hidden;
+  }
+
+  .sidebar {
+    width: 90px;
+    background: #f0f0f0;
+    overflow-y: auto;
+    padding: 1rem 0;
+  }
+
+  .sidebar button {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .sidebar button.active,
+  .sidebar button:hover {
+    background: #ddd;
+  }
+
+  .main-area {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: visible;
+    padding-top: 0;
+    position: relative;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 100;
+    text-align: center;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(3, 3, 3, 0.1);
+  }
+
+  h1 {
+    margin: 1rem;
+    font-size: 2.5rem;
+    color: rgb(0, 0, 0);
+  }
+
+  body {
+    background: rgb(96, 95, 95);
+  }
+
+  .search-container {
+    margin-top: 0.1rem;
+  }
+
+  .search-container input {
+    width: 60%;
+    max-width: 800px;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .last-updated {
+    font-size: 0.75rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+
+  .error-banner {
+    background: #fff3cd;
+    color: #856404;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    margin: 0.5rem auto;
+    max-width: 600px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .refresh-link {
+    background: none;
+    border: none;
+    color: rgb(0, 0, 0);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.875rem;
+  }
+
+  .loading-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+  }
+
+  .loader {
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #800020;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .loading-overlay p {
+    margin-top: 1rem;
+    color: #666;
+  }
+
+  .timeline {
+    position: relative;
+    overflow-x: visible;
+    max-width: 600px;
+    margin: 1rem auto;
+    padding-left: 4rem;
+    min-height: 400px;
+  }
+
+  .event {
+    width: 100%;
+    margin-top: 2rem;
+    max-width: 550px;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+
+  .event:hover {
+    transform: translateX(-5px);
+  }
+
+  .event-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-direction: row-reverse;
+  }
+
+  .thumbnail-container {
+    position: relative;
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    background: #f0f0f0;
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  .thumbnail-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .play-icon {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.9);
+    background: rgba(0,0,0,0.6);
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+  }
+
+  .content {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    background: #fff;
+    padding: 1rem;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    font-size: 0.875rem;
+    line-height: 1.4;
+    font-weight: 300;
+    flex: 1;
+  }
+
+  .content.with-thumbnail {
+    flex: 1;
+  }
+
+  .date-label {
+    background: #e0e0e0;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: bold;
+    color: #333;
+  }
+
+  .separator {
+    width: 1px;
+    height: 1.5rem;
+    background: #ccc;
+    margin: 0 1rem;
+  }
+
+  .incident-text {
+    font-weight: bold;
+    flex: 1;
+    text-align: right;
+    direction: rtl;
+  }
+
+  .empty {
+    text-align: center;
+    color: #666;
+    padding: 2rem;
+  }
+
+  .detail-pane {
+    width: 37%;
+    background: #fafafa;
+    overflow-y: auto;
+    padding: 1rem;
+    border-left: 1px solid #ddd;
+  }
+
+  /* chat‑type override */
+  /* chat‑type override */
+.detail-pane.chat {
+  /* light grey background and subtle border */
+  background: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 1rem;
 }
 
+/* wrapper for all chat lines */
+.detail-pane.chat .chat-log {
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  max-height: 60vh;
+  overflow-y: auto;
+  /* keep RTL if needed */
+  direction: ltr;
+  text-align: left; 
+}
 
+/* each message row */
+.detail-pane.chat .chat-line {
+  padding: 0.4rem 0;
+  border-bottom: 1px solid #e2e2e2;
+}
+
+/* remove separator on last line */
+.detail-pane.chat .chat-line:last-child {
+  border-bottom: none;
+}
+
+/* timestamp style */
+.detail-pane.chat .timestamp {
+  color: #888;
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
+/* message text style */
+.detail-pane.chat .message {
+  color: #333;
+}
+  .detail-content {
+    margin-top: 1rem;
+    display: block;
+    direction: rtl;
+  }
+
+  .visual-box {
+    margin-bottom: 1rem;
+    border: 2px solid gray;
+    border-radius: 4px;
+    overflow: hidden;
+    min-height: 200px;
+    background: #f5f5f5;
+  }
+
+  a {
+    color: gray;
+    text-decoration: underline;
+  }
+
+  .detail-content .meta-details {
+    direction: ltr;
+    text-align: left;
+  }
+
+  .meta-details {
+    border-top: 1px solid #ddd;
+    margin: 1rem 0;
+    padding-top: 1rem;
+  }
+
+  .meta-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  .meta-row:last-child {
+    border-bottom: none;
+  }
+
+  .meta-label {
+    font-weight: bold;
+    color: #555;
+  }
+
+  .meta-value {
+    color: #333;
+  }
+
+  .event.selected .event-container .content {
+    border: 3px solid #800020;
+  }
+`}</style>
+
+</>
+  ); // ← close the return(
+}     // ← close Home()
 
